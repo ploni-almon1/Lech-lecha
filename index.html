@@ -65,12 +65,6 @@
     .lb-name { flex: 1; font-weight: 600; color: var(--text-dark); font-size: 0.95em; }
     .lb-score { font-weight: 700; color: var(--text-dark); font-size: 1em; }
 
-    .overall-banner { background-color: var(--primary-purple); color: var(--white); }
-    .overall-banner .leaderboard-title { color: var(--white); }
-    .overall-banner .leaderboard-item { border-bottom: 1px solid rgba(255,255,255,0.2); }
-    .overall-banner .lb-rank, .overall-banner .lb-name, .overall-banner .lb-score { color: var(--white); }
-    .overall-banner .lb-avatar { background-color: var(--white); color: var(--primary-purple); }
-
     /* PROFILOVÁ ZÁLOŽKA */
     .profile-header { padding: 20px; display: flex; gap: 20px; align-items: center; }
     .profile-avatar-large { width: 80px; height: 80px; background-color: var(--primary-purple); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2em; font-weight: 700; overflow: hidden; }
@@ -202,15 +196,12 @@
         </div>
       </div>
 
-      <div class="leaderboard-section">
-        <div class="card overall-banner">
-          <h3 class="leaderboard-title">Celkový historický postup</h3>
-          <div id="stats-overall-list" class="leaderboard-list">
-            <div style="text-align: center; color: var(--white); padding: 10px;">Načítám celková data...</div>
-          </div>
-        </div>
-      </div>
-    </div> 
+      <div class="card">
+  <h3 class="leaderboard-title">Celkový historický postup</h3>
+  <div id="stats-overall-list" class="leaderboard-list">
+    <div style="text-align: center; color: var(--gray-text); padding: 10px;">Načítám celková data...</div>
+  </div>
+</div>
 
     <div id="tab-profile" class="hidden">
       <div class="top-bar"><span>Lech lecha!</span></div>
