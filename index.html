@@ -39,26 +39,15 @@
     .btn-google img { width: 20px; height: 20px; }
     #auth-error { color: #d63031; margin-top: 10px; font-size: 0.9em; font-weight: 600; display: none; }
 
-    /* SOUKROMÁ ČÁST (Dashboard) */
+    /* SOUKROMÁ ČÁST (Společný kontejner) */
     #private-view { max-width: 600px; margin: 0 auto; padding-bottom: 90px; }
     .top-bar { background-color: var(--primary-purple); color: var(--white); padding: 20px; font-size: 1.3em; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
     .btn-logout { background-color: transparent; color: var(--white); border: 1px solid var(--white); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
     
     .dashboard-header { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-    
-    /* ÚPRAVA: Dokonalé čtverce pro horní dlaždice */
-    .dashboard-header .card {
-      aspect-ratio: 1 / 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
+    .dashboard-header .card { aspect-ratio: 1 / 1; display: flex; flex-direction: column; justify-content: center; }
     .card { background-color: var(--white); border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    
-    /* ÚPRAVA: Zmenšení písma a zákaz zalamování */
     .distance-card h2 { font-size: 2em; font-weight: 700; white-space: nowrap; }
-    
     .distance-card p { color: var(--gray-text); margin-top: 5px; font-size: 0.9em; }
     .logo-card { background-color: var(--primary-orange); display: flex; align-items: center; justify-content: center; border-radius: 15px; }
     
@@ -75,12 +64,17 @@
     .lb-name { flex: 1; font-weight: 600; color: var(--text-dark); font-size: 0.95em; }
     .lb-score { font-weight: 700; color: var(--text-dark); font-size: 1em; }
 
-    /* SPODNÍ NAVIGAČNÍ LIŠTA - ŠEDÉ NEAKTIVNÍ, FIALOVÉ AKTIVNÍ */
+    /* Speciální banner pro celkovou statistiku */
+    .overall-banner { background-color: var(--primary-purple); color: var(--white); }
+    .overall-banner .leaderboard-title { color: var(--white); }
+    .overall-banner .leaderboard-item { border-bottom: 1px solid rgba(255,255,255,0.2); }
+    .overall-banner .lb-rank, .overall-banner .lb-name, .overall-banner .lb-score { color: var(--white); }
+    .overall-banner .lb-avatar { background-color: var(--white); color: var(--primary-purple); }
+
+    /* SPODNÍ NAVIGAČNÍ LIŠTA */
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-    
     .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--gray-text); font-size: 0.8em; font-weight: 600; cursor: pointer; transition: color 0.2s; }
     .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: var(--gray-text); transition: fill 0.2s; }
-    
     .nav-item.active { color: var(--primary-purple); }
     .nav-item.active svg { fill: var(--primary-purple); }
 
@@ -122,58 +116,82 @@
   </div>
 
   <div id="private-view" class="hidden">
-    <div class="top-bar">
-      <span>Lech lecha!</span>
-      <button onclick="logoutUser()" class="btn-logout">Odhlásit</button>
-    </div>
     
-    <div class="dashboard-header">
-      <div class="card distance-card">
-        <h2 id="my-km-text">0</h2>
-        <p>moje vzdálenost v km</p>
+    <div id="tab-dashboard">
+      <div class="top-bar">
+        <span>Lech lecha!</span>
+        <button onclick="logoutUser()" class="btn-logout">Odhlásit</button>
       </div>
-      <div class="card logo-card">
-        <h1 style="color: white; font-size: 4em;">^</h1>
-      </div>
-    </div>
-
-    <div class="progress-section">
-      <div class="card">
-        <h3 style="margin-bottom: 10px;">Lech lecha!</h3>
-        <p style="display: flex; justify-content: space-between; font-size: 0.9em;">
-          <span id="global-km-text" style="color: #27ae60; font-weight: 600;">📏 0 <span style="color: var(--gray-text);">/ 3 240 km</span></span>
-          <span style="color: var(--gray-text);">Cíl: Jeruzalém</span>
-        </p>
-        <div style="background-color: var(--gray-light); border-radius: 10px; height: 10px; margin-top: 10px; overflow: hidden;">
-          <div id="progress-bar-fill" style="background-color: #27ae60; width: 0%; height: 100%; transition: width 0.5s ease;"></div>
+      
+      <div class="dashboard-header">
+        <div class="card distance-card">
+          <h2 id="my-km-text">0</h2>
+          <p>moje vzdálenost v km</p>
+        </div>
+        <div class="card logo-card">
+          <h1 style="color: white; font-size: 4em;">^</h1>
         </div>
       </div>
-    </div>
 
-    <div class="action-section">
-      <button class="btn-action" onclick="openModal()">Zapsat novou aktivitu</button>
-    </div>
-
-    <div class="leaderboard-section">
-      <div class="card">
-        <h3 class="leaderboard-title">Týdenní přehled</h3>
-        <div id="leaderboard-list" class="leaderboard-list">
-          <div style="text-align: center; color: var(--gray-text); padding: 10px;">Načítám data...</div>
+      <div class="progress-section">
+        <div class="card">
+          <h3 style="margin-bottom: 10px;">Lech lecha!</h3>
+          <p style="display: flex; justify-content: space-between; font-size: 0.9em;">
+            <span id="global-km-text" style="color: #27ae60; font-weight: 600;">📏 0 <span style="color: var(--gray-text);">/ 3 240 km</span></span>
+            <span style="color: var(--gray-text);">Cíl: Jeruzalém</span>
+          </p>
+          <div style="background-color: var(--gray-light); border-radius: 10px; height: 10px; margin-top: 10px; overflow: hidden;">
+            <div id="progress-bar-fill" style="background-color: #27ae60; width: 0%; height: 100%; transition: width 0.5s ease;"></div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="bottom-nav">
-      <div class="nav-item active">
+      <div class="action-section">
+        <button class="btn-action" onclick="openModal()">Zapsat novou aktivitu</button>
+      </div>
+
+      <div class="leaderboard-section">
+        <div class="card">
+          <h3 class="leaderboard-title">Týdenní přehled (Top 3)</h3>
+          <div id="dashboard-leaderboard-list" class="leaderboard-list">
+            <div style="text-align: center; color: var(--gray-text); padding: 10px;">Načítám data...</div>
+          </div>
+        </div>
+      </div>
+    </div> <div id="tab-statistics" class="hidden">
+      <div class="top-bar">
+        <span>Statistika</span>
+        <button onclick="logoutUser()" class="btn-logout">Odhlásit</button>
+      </div>
+
+      <div class="leaderboard-section" style="padding-top: 15px;">
+        <div class="card">
+          <h3 class="leaderboard-title">Aktuální týden (Všichni)</h3>
+          <div id="stats-weekly-list" class="leaderboard-list">
+            <div style="text-align: center; color: var(--gray-text); padding: 10px;">Zatím pro všechny ukazuje stejná data, než upravíme databázi...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="leaderboard-section">
+        <div class="card overall-banner">
+          <h3 class="leaderboard-title">Celkový historický postup</h3>
+          <div id="stats-overall-list" class="leaderboard-list">
+            <div style="text-align: center; color: var(--white); padding: 10px;">Načítám celková data...</div>
+          </div>
+        </div>
+      </div>
+    </div> <div class="bottom-nav">
+      <div class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Přehled
       </div>
-      <div class="nav-item">
+      <div class="nav-item" id="nav-statistics" onclick="switchTab('statistics')">
         <svg viewBox="0 0 24 24"><path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>Statistika
       </div>
-      <div class="nav-item">
+      <div class="nav-item" id="nav-map" onclick="alert('Záložka Mapa se připravuje!')">
         <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>Mapa
       </div>
-      <div class="nav-item">
+      <div class="nav-item" id="nav-profile" onclick="alert('Záložka Profil se připravuje!')">
         <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Profil
       </div>
     </div>
@@ -183,9 +201,7 @@
     <div class="modal-content">
       <h3>Nová aktivita</h3>
       <div class="activity-chips">
-        <div class="chip active" onclick="selectChip(this)">Chůze</div>
-        <div class="chip" onclick="selectChip(this)">Běh</div>
-        <div class="chip" onclick="selectChip(this)">Kolo</div>
+        <div class="chip active" onclick="selectChip(this)">Chůze</div><div class="chip" onclick="selectChip(this)">Běh</div><div class="chip" onclick="selectChip(this)">Kolo</div>
       </div>
       <div class="km-input-wrapper">
         <input type="number" id="km-input" class="km-input" placeholder="0.0" step="0.1" min="0">
@@ -249,7 +265,6 @@
         unsubscribeUser = onSnapshot(userRef, (docSnap) => {
           const data = docSnap.data();
           const myKm = data.personalKm || 0;
-          // ÚPRAVA: Odebrán kód přidávající "km" k číslu
           document.getElementById('my-km-text').innerHTML = myKm.toLocaleString('cs-CZ');
         });
 
@@ -265,12 +280,20 @@
           document.getElementById('progress-bar-fill').style.width = `${percent}%`;
         });
 
+        // DOČASNÉ ŘEŠENÍ: Prozatím načítáme do všech 3 žebříčků stejná data (historická). 
+        // V dalším kroku to rozdělíme na týdny a Top 3!
         const usersCol = collection(db, "users");
         const q = query(usersCol, orderBy("personalKm", "desc"));
         
         unsubscribeLeaderboard = onSnapshot(q, (querySnapshot) => {
-          const lbContainer = document.getElementById('leaderboard-list');
-          lbContainer.innerHTML = '';
+          // Příprava kontejnerů
+          const dashList = document.getElementById('dashboard-leaderboard-list');
+          const statsWeeklyList = document.getElementById('stats-weekly-list');
+          const statsOverallList = document.getElementById('stats-overall-list');
+          
+          dashList.innerHTML = '';
+          statsWeeklyList.innerHTML = '';
+          statsOverallList.innerHTML = '';
           
           let rank = 1;
           querySnapshot.forEach((docSnap) => {
@@ -279,15 +302,20 @@
             const km = data.personalKm || 0;
             const initial = name.charAt(0).toUpperCase();
             
-            const item = document.createElement('div');
-            item.className = 'leaderboard-item';
-            item.innerHTML = `
-              <div class="lb-rank">${rank}</div>
-              <div class="lb-avatar">${initial}</div>
-              <div class="lb-name">${name}</div>
-              <div class="lb-score">${km.toLocaleString('cs-CZ')} km</div>
+            const htmlItem = `
+              <div class="leaderboard-item">
+                <div class="lb-rank">${rank}</div>
+                <div class="lb-avatar">${initial}</div>
+                <div class="lb-name">${name}</div>
+                <div class="lb-score">${km.toLocaleString('cs-CZ')} km</div>
+              </div>
             `;
-            lbContainer.appendChild(item);
+            
+            // Zkopírujeme html položku do všech žebříčků (zatím)
+            if(rank <= 3) dashList.innerHTML += htmlItem; // Jen Top 3 na Dashboardu
+            statsWeeklyList.innerHTML += htmlItem;
+            statsOverallList.innerHTML += htmlItem;
+            
             rank++;
           });
         });
@@ -325,8 +353,23 @@
             alert("Něco se pokazilo při komunikaci s databází.");
         }
       } else {
-        alert("Zadej platný počet kilometrů (např. 5.5).");
+        alert("Zadej platný počet kilometrů.");
       }
+    };
+
+    // LOGIKA PRO PŘEPÍNÁNÍ ZÁLOŽEK
+    window.switchTab = (tabId) => {
+      // Skryje všechny záložky
+      document.getElementById('tab-dashboard').classList.add('hidden');
+      document.getElementById('tab-statistics').classList.add('hidden');
+      
+      // Odbarví všechny ikonky v menu
+      document.getElementById('nav-dashboard').classList.remove('active');
+      document.getElementById('nav-statistics').classList.remove('active');
+      
+      // Zobrazí tu správnou záložku a obarví ikonku
+      document.getElementById('tab-' + tabId).classList.remove('hidden');
+      document.getElementById('nav-' + tabId).classList.add('active');
     };
 
     window.registerUser = () => { const email = document.getElementById('email-input').value; const password = document.getElementById('password-input').value; errorMsg.style.display = 'none'; createUserWithEmailAndPassword(auth, email, password).catch((e) => { errorMsg.textContent = "Chyba: " + e.message; errorMsg.style.display = 'block'; }); };
