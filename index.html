@@ -13,11 +13,12 @@
     body { background-color: var(--bg-color); color: var(--text-dark); }
     .hidden { display: none !important; }
 
-    /* VEŘEJNÁ ČÁST */
+    /* VEŘEJNÁ ČÁST (Landing Page) */
     #public-view { padding: 20px; text-align: center; max-width: 600px; margin: 0 auto; }
     .hero-title { font-size: 2.2em; color: var(--primary-purple); margin-top: 40px; margin-bottom: 20px; font-weight: 700; }
     #map-placeholder { background-color: var(--gray-light); height: 300px; border-radius: 10px; margin: 20px 0; display: flex; align-items: center; justify-content: center; color: var(--gray-text); font-weight: 600; }
     
+    /* PŘIHLAŠOVACÍ FORMULÁŘ */
     .auth-form { background-color: var(--white); padding: 20px; border-radius: 15px; margin-top: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .auth-input { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid var(--gray-light); border-radius: 10px; font-size: 1em; }
     .btn-login { background-color: var(--primary-orange); color: var(--white); border: none; padding: 15px; font-size: 1.1em; font-weight: 600; border-radius: 10px; cursor: pointer; width: 100%; margin-bottom: 10px; }
@@ -36,30 +37,27 @@
     .btn-logout { background-color: transparent; color: var(--white); border: 1px solid var(--white); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
     
     .dashboard-header { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+    /* Přidá vlastnost dokonalého čtverce pro obě horní dlaždice */
+    .dashboard-header .card {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Vystředí text hezky vertikálně doprostřed */
+    }
     .card { background-color: var(--white); border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .distance-card h2 { font-size: 2.5em; font-weight: 700; }
     .distance-card p { color: var(--gray-text); margin-top: 5px; font-size: 0.9em; }
     .logo-card { background-color: var(--primary-orange); display: flex; align-items: center; justify-content: center; border-radius: 15px; }
     
-    .progress-section, .action-section, .leaderboard-section { padding: 0 15px 15px 15px; }
+    .progress-section, .action-section { padding: 0 15px 15px 15px; }
     .btn-action { background-color: var(--primary-purple); color: var(--white); border: none; padding: 18px; font-size: 1.1em; font-weight: 600; border-radius: 10px; cursor: pointer; width: 100%; }
-
-    /* ŽEBŘÍČEK */
-    .leaderboard-title { font-size: 1.1em; font-weight: 700; margin-bottom: 15px; color: var(--text-dark); }
-    .leaderboard-list { display: flex; flex-direction: column; }
-    .leaderboard-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--gray-light); }
-    .leaderboard-item:last-child { border-bottom: none; padding-bottom: 0; }
-    .lb-rank { width: 30px; font-weight: 600; color: var(--gray-text); font-size: 1.1em; }
-    .lb-avatar { width: 35px; height: 35px; background-color: var(--primary-purple); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 15px; font-size: 1em; }
-    .lb-name { flex: 1; font-weight: 600; color: var(--text-dark); font-size: 0.95em; }
-    .lb-score { font-weight: 700; color: var(--text-dark); font-size: 1em; }
 
     /* SPODNÍ NAVIGAČNÍ LIŠTA */
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
     .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--primary-purple); font-size: 0.8em; font-weight: 600; cursor: pointer; }
     .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: var(--primary-purple); }
 
-    /* VYSKAKOVACÍ OKNO */
+    /* VYSKAKOVACÍ OKNO (Modal) */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: all; }
     .modal-content { background-color: var(--white); padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; }
@@ -80,6 +78,7 @@
     <h1 class="hero-title">Z Olomouce do Jeruzaléma</h1>
     <p>Přidej se k naší společné výzvě a pojďme překonat přes 3000 kilometrů!</p>
     <div id="map-placeholder">Zde bude mapa</div>
+    
     <p>Už jsme ušli celkem: <strong id="public-total-km">0 km</strong></p>
 
     <div class="auth-form">
@@ -129,15 +128,6 @@
       <button class="btn-action" onclick="openModal()">Zapsat novou aktivitu</button>
     </div>
 
-    <div class="leaderboard-section">
-      <div class="card">
-        <h3 class="leaderboard-title">Týdenní přehled</h3>
-        <div id="leaderboard-list" class="leaderboard-list">
-          <div style="text-align: center; color: var(--gray-text); padding: 10px;">Načítám data...</div>
-        </div>
-      </div>
-    </div>
-
     <div class="bottom-nav">
       <div class="nav-item">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Přehled
@@ -174,10 +164,10 @@
   </div>
 
   <script type="module">
+    // 1. Přidán import funkcí z FIRESTORE DATABÁZE
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    // Přidány funkce collection, query a orderBy pro žebříček
-    import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDI_7D0jyBM2LbU4hpoumGp3VPdcBn2jEY",
@@ -190,7 +180,7 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
+    const db = getFirestore(app); // Inicializace databáze
     const googleProvider = new GoogleAuthProvider();
 
     const publicView = document.getElementById('public-view');
@@ -200,73 +190,52 @@
     let currentUser = null;
     let unsubscribeUser = null;
     let unsubscribeGlobal = null;
-    let unsubscribeLeaderboard = null;
 
+    // SLEDOVÁNÍ STAVU PŘIHLÁŠENÍ A DATABÁZE
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
         publicView.classList.add('hidden');
         privateView.classList.remove('hidden');
 
+        // Reference do databáze pro uživatele a celkové statistiky
         const userRef = doc(db, "users", user.uid);
         const globalRef = doc(db, "global", "stats");
 
+        // 1. Pokud uživatel ještě nemá záznam, vytvoříme mu ho (s 0 km)
         const userSnap = await getDoc(userRef);
         if (!userSnap.exists()) {
           let displayName = user.displayName || user.email.split('@')[0];
           await setDoc(userRef, { personalKm: 0, name: displayName });
         }
 
+        // 2. Pokud neexistuje globální záznam, vytvoříme ho
         const globalSnap = await getDoc(globalRef);
         if (!globalSnap.exists()) {
           await setDoc(globalRef, { totalKm: 0 });
         }
 
+        // 3. Naslouchání reálných změn PRO UŽIVATELE (Moje vzdálenost)
         unsubscribeUser = onSnapshot(userRef, (docSnap) => {
           const data = docSnap.data();
           const myKm = data.personalKm || 0;
+          // Zaokrouhlení a výpis s desetinnou čárkou
           document.getElementById('my-km-text').innerHTML = `${myKm.toLocaleString('cs-CZ')}<span style="font-size: 0.5em;"> km</span>`;
         });
 
+        // 4. Naslouchání reálných změn PRO GLOBÁLNÍ POSTUP (Společná čára)
         unsubscribeGlobal = onSnapshot(globalRef, (docSnap) => {
           const data = docSnap.data();
           const totalKm = data.totalKm || 0;
           const targetKm = 3240;
+          
           document.getElementById('global-km-text').innerHTML = `📏 ${totalKm.toLocaleString('cs-CZ')} <span style="color: var(--gray-text);">/ 3 240 km</span>`;
           document.getElementById('public-total-km').innerText = `${totalKm.toLocaleString('cs-CZ')} km`;
 
+          // Výpočet procent pro vybarvení čáry (max 100%)
           let percent = (totalKm / targetKm) * 100;
           if(percent > 100) percent = 100;
           document.getElementById('progress-bar-fill').style.width = `${percent}%`;
-        });
-
-        // NOVÉ: Generování žebříčku
-        const usersCol = collection(db, "users");
-        const q = query(usersCol, orderBy("personalKm", "desc")); // Seřadí uživatele sestupně
-        
-        unsubscribeLeaderboard = onSnapshot(q, (querySnapshot) => {
-          const lbContainer = document.getElementById('leaderboard-list');
-          lbContainer.innerHTML = ''; // Vymažeme načítací text
-          
-          let rank = 1;
-          querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            const name = data.name || 'Neznámý';
-            const km = data.personalKm || 0;
-            // Získáme první písmeno jména pro vygenerování ikony
-            const initial = name.charAt(0).toUpperCase();
-            
-            const item = document.createElement('div');
-            item.className = 'leaderboard-item';
-            item.innerHTML = `
-              <div class="lb-rank">${rank}</div>
-              <div class="lb-avatar">${initial}</div>
-              <div class="lb-name">${name}</div>
-              <div class="lb-score">${km.toLocaleString('cs-CZ')} km</div>
-            `;
-            lbContainer.appendChild(item);
-            rank++;
-          });
         });
 
       } else {
@@ -274,11 +243,13 @@
         publicView.classList.remove('hidden');
         privateView.classList.add('hidden');
         
+        // Zastavení naslouchání, pokud se uživatel odhlásí
         if(unsubscribeUser) unsubscribeUser();
         if(unsubscribeGlobal) unsubscribeGlobal();
-        if(unsubscribeLeaderboard) unsubscribeLeaderboard();
         
-        getDoc(doc(db, "global", "stats")).then(docSnap => {
+        // Zobrazení globálních km i nepřihlášeným
+        const globalRef = doc(db, "global", "stats");
+        getDoc(globalRef).then(docSnap => {
            if(docSnap.exists()) {
              document.getElementById('public-total-km').innerText = `${docSnap.data().totalKm.toLocaleString('cs-CZ')} km`;
            }
@@ -286,17 +257,22 @@
       }
     });
 
+    // FUNKCE PRO ULOŽENÍ AKTIVITY
     window.saveActivity = async () => {
+      // Převedení zadaného textu na desetinné číslo (podporuje i čárku i tečku)
       let rawInput = document.getElementById('km-input').value.replace(',', '.');
       const km = parseFloat(rawInput);
       
       if(km > 0 && currentUser) {
         const userRef = doc(db, "users", currentUser.uid);
         const globalRef = doc(db, "global", "stats");
+
         try {
+            // Přičtení kilometrů uživateli i do celkových statistik
             await updateDoc(userRef, { personalKm: increment(km) });
             await updateDoc(globalRef, { totalKm: increment(km) });
-            window.closeModal();
+            
+            window.closeModal(); // Zavře okno po úspěšném uložení
         } catch (error) {
             console.error("Chyba při ukládání:", error);
             alert("Něco se pokazilo při komunikaci s databází.");
@@ -306,11 +282,13 @@
       }
     };
 
+    // PŮVODNÍ AUTH FUNKCE
     window.registerUser = () => { const email = document.getElementById('email-input').value; const password = document.getElementById('password-input').value; errorMsg.style.display = 'none'; createUserWithEmailAndPassword(auth, email, password).catch((e) => { errorMsg.textContent = "Chyba: " + e.message; errorMsg.style.display = 'block'; }); };
     window.loginUser = () => { const email = document.getElementById('email-input').value; const password = document.getElementById('password-input').value; errorMsg.style.display = 'none'; signInWithEmailAndPassword(auth, email, password).catch((e) => { errorMsg.textContent = "Chybný e-mail nebo heslo."; errorMsg.style.display = 'block'; }); };
     window.loginWithGoogle = () => { errorMsg.style.display = 'none'; signInWithPopup(auth, googleProvider).catch((e) => { errorMsg.textContent = "Chyba Google přihlášení: " + e.message; errorMsg.style.display = 'block'; }); };
     window.logoutUser = () => { signOut(auth); };
 
+    // VIZUÁLNÍ LOGIKA (Modal atd.)
     const modal = document.getElementById('activity-modal');
     window.openModal = () => { modal.classList.add('active'); document.getElementById('km-input').value = ''; };
     window.closeModal = () => { modal.classList.remove('active'); };
