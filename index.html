@@ -4,11 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Lech Lecha Výzva</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#f4f5f7">
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   
   <style>
     /* ZÁKLADNÍ NASTAVENÍ */
-    :root { --bg-color: #f4f5f7; --text-dark: #1a1a1a; --primary-purple: #3a3358; --primary-orange: #ff5e00; --white: #ffffff; --gray-light: #e0e0e0; --gray-text: #666666; }
+    :root { --bg-color: #f4f5f7; --text-dark: #1a1a1a; --primary-purple: #3a3358; --primary-orange: #ff5e00; --white: #ffffff; --gray-light: #e0e0e0; --gray-text: #999999; }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-dark); }
     .hidden { display: none !important; }
@@ -23,13 +32,6 @@
     .btn-login { background-color: var(--primary-orange); color: var(--white); border: none; padding: 15px; font-size: 1.1em; font-weight: 600; border-radius: 10px; cursor: pointer; width: 100%; margin-bottom: 10px; }
     .btn-register { background-color: var(--primary-purple); color: var(--white); border: none; padding: 15px; font-size: 1em; font-weight: 600; border-radius: 10px; cursor: pointer; width: 100%; margin-bottom: 15px;}
     .divider { display: flex; align-items: center; text-align: center; margin-bottom: 15px; color: var(--gray-text); font-size: 0.9em; }
-    /* Přidá vlastnost dokonalého čtverce pro obě horní dlaždice */
-    .dashboard-header .card {
-      aspect-ratio: 1 / 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center; /* Vystředí text hezky vertikálně doprostřed */
-    }
     .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--gray-light); }
     .divider:not(:empty)::before { margin-right: .25em; }
     .divider:not(:empty)::after { margin-left: .25em; }
@@ -43,8 +45,20 @@
     .btn-logout { background-color: transparent; color: var(--white); border: 1px solid var(--white); padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8em; }
     
     .dashboard-header { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+    
+    /* ÚPRAVA: Dokonalé čtverce pro horní dlaždice */
+    .dashboard-header .card {
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
     .card { background-color: var(--white); border-radius: 15px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    
+    /* ÚPRAVA: Zmenšení písma a zákaz zalamování */
     .distance-card h2 { font-size: 2em; font-weight: 700; white-space: nowrap; }
+    
     .distance-card p { color: var(--gray-text); margin-top: 5px; font-size: 0.9em; }
     .logo-card { background-color: var(--primary-orange); display: flex; align-items: center; justify-content: center; border-radius: 15px; }
     
@@ -61,10 +75,14 @@
     .lb-name { flex: 1; font-weight: 600; color: var(--text-dark); font-size: 0.95em; }
     .lb-score { font-weight: 700; color: var(--text-dark); font-size: 1em; }
 
-    /* SPODNÍ NAVIGAČNÍ LIŠTA */
+    /* SPODNÍ NAVIGAČNÍ LIŠTA - ŠEDÉ NEAKTIVNÍ, FIALOVÉ AKTIVNÍ */
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--primary-purple); font-size: 0.8em; font-weight: 600; cursor: pointer; }
-    .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: var(--primary-purple); }
+    
+    .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: var(--gray-text); font-size: 0.8em; font-weight: 600; cursor: pointer; transition: color 0.2s; }
+    .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; fill: var(--gray-text); transition: fill 0.2s; }
+    
+    .nav-item.active { color: var(--primary-purple); }
+    .nav-item.active svg { fill: var(--primary-purple); }
 
     /* VYSKAKOVACÍ OKNO */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
@@ -111,8 +129,8 @@
     
     <div class="dashboard-header">
       <div class="card distance-card">
-        <h2 id="my-km-text">0<span style="font-size: 0.5em;"> km</span></h2>
-        <p>moje vzdálenost</p>
+        <h2 id="my-km-text">0</h2>
+        <p>moje vzdálenost v km</p>
       </div>
       <div class="card logo-card">
         <h1 style="color: white; font-size: 4em;">^</h1>
@@ -146,7 +164,7 @@
     </div>
 
     <div class="bottom-nav">
-      <div class="nav-item">
+      <div class="nav-item active">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Přehled
       </div>
       <div class="nav-item">
@@ -183,7 +201,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    // Přidány funkce collection, query a orderBy pro žebříček
     import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot, collection, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -232,7 +249,8 @@
         unsubscribeUser = onSnapshot(userRef, (docSnap) => {
           const data = docSnap.data();
           const myKm = data.personalKm || 0;
-          document.getElementById('my-km-text').innerHTML = `${myKm.toLocaleString('cs-CZ')}<span style="font-size: 0.5em;"> km</span>`;
+          // ÚPRAVA: Odebrán kód přidávající "km" k číslu
+          document.getElementById('my-km-text').innerHTML = myKm.toLocaleString('cs-CZ');
         });
 
         unsubscribeGlobal = onSnapshot(globalRef, (docSnap) => {
@@ -247,20 +265,18 @@
           document.getElementById('progress-bar-fill').style.width = `${percent}%`;
         });
 
-        // NOVÉ: Generování žebříčku
         const usersCol = collection(db, "users");
-        const q = query(usersCol, orderBy("personalKm", "desc")); // Seřadí uživatele sestupně
+        const q = query(usersCol, orderBy("personalKm", "desc"));
         
         unsubscribeLeaderboard = onSnapshot(q, (querySnapshot) => {
           const lbContainer = document.getElementById('leaderboard-list');
-          lbContainer.innerHTML = ''; // Vymažeme načítací text
+          lbContainer.innerHTML = '';
           
           let rank = 1;
           querySnapshot.forEach((docSnap) => {
             const data = docSnap.data();
             const name = data.name || 'Neznámý';
             const km = data.personalKm || 0;
-            // Získáme první písmeno jména pro vygenerování ikony
             const initial = name.charAt(0).toUpperCase();
             
             const item = document.createElement('div');
