@@ -15,6 +15,9 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.2/cropper.min.js"></script>
+  
   <style>
     /* ZÁKLADNÍ NASTAVENÍ */
     :root { --bg-color: #f4f5f7; --text-dark: #1a1a1a; --primary-purple: #3a3358; --primary-orange: #ff5e00; --white: #ffffff; --gray-light: #e0e0e0; --gray-text: #999999; }
@@ -57,6 +60,8 @@
     .leaderboard-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--gray-light); position: relative; }
     .leaderboard-item:last-child { border-bottom: none; padding-bottom: 0; }
     .lb-rank { width: 30px; font-weight: 600; color: var(--gray-text); font-size: 1.1em; }
+    
+    /* Avatary podporují jak písmeno, tak vložený obrázek */
     .lb-avatar { width: 35px; height: 35px; background-color: var(--primary-purple); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 15px; font-size: 1em; overflow: hidden; }
     .lb-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .lb-name { flex: 1; font-weight: 600; color: var(--text-dark); font-size: 0.95em; }
@@ -85,10 +90,9 @@
 
     .activity-list-icon { width: 24px; height: 24px; fill: var(--text-dark); margin-right: 15px; }
     
-    /* Tlačítko tužky pro editaci konkrétní aktivity */
     .btn-inline-edit { display: none; background: var(--gray-light); border: none; padding: 5px; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; align-items: center; justify-content: center; margin-left: 10px; }
     .btn-inline-edit svg { width: 14px; height: 14px; fill: var(--primary-purple); }
-    .edit-mode-active .btn-inline-edit { display: flex; } /* Ukáže se jen při aktivním režimu úprav */
+    .edit-mode-active .btn-inline-edit { display: flex; } 
 
     /* SPODNÍ NAVIGAČNÍ LIŠTA */
     .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; justify-content: space-around; padding: 10px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); z-index: 100; }
@@ -97,7 +101,7 @@
     .nav-item.active { color: var(--primary-purple); }
     .nav-item.active svg { fill: var(--primary-purple); }
 
-    /* VYSKAKOVACÍ OKNA (Modaly) */
+    /* MODALY / VYSKAKOVACÍ OKNA */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
     .modal-overlay.active { opacity: 1; pointer-events: all; }
     .modal-content { background-color: var(--white); padding: 25px; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; }
@@ -117,13 +121,17 @@
     .btn-save { flex: 1; background-color: var(--primary-orange); color: var(--white); border: none; padding: 15px; border-radius: 10px; font-weight: 600; cursor: pointer; }
     .btn-cancel { flex: 1; background-color: var(--gray-light); color: var(--text-dark); border: none; padding: 15px; border-radius: 10px; font-weight: 600; cursor: pointer; }
     .btn-delete { background-color: #d63031; color: var(--white); border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; margin-top: 5px; font-size: 0.9em; }
+
+    /* STYL PRO OŘEZOVOU OBLAST VE VYSKAKOVACÍM OKNĚ */
+    .cropper-container-wrapper { width: 100%; max-height: 220px; margin-top: 15px; background-color: #eee; overflow: hidden; border-radius: 10px; display: none; }
+    .cropper-container-wrapper img { max-width: 100%; display: block; }
   </style>
 </head>
 <body>
 
   <div id="public-view">
     <h1 class="hero-title">Z Olomouce do Jeruzaléma</h1>
-    <p>Přidej se k naší společné výzvě and pojďme překonać přes 3000 kilometrů!</p>
+    <p>Přidej se k naší společné výzvě a pojďme překonat přes 3000 kilometrů!</p>
     <div id="map-placeholder">Zde bude mapa</div>
     <p>Už jsme ušli celkem: <strong id="public-total-km">0 km</strong></p>
 
@@ -218,7 +226,7 @@
       </div>
 
       <div class="profile-actions">
-        <button class="btn-outline" onclick="alert('Zatím nepřipojeno k úpravám jména')">
+        <button class="btn-outline" onclick="openProfileEditModal()">
           <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Upravit profil
         </button>
         <button class="btn-outline" onclick="logoutUser()">Odhlásit</button>
@@ -301,10 +309,32 @@
     </div>
   </div>
 
+  <div id="profile-edit-modal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Upravit profil</h3>
+      <div class="date-input-wrapper">
+        <label for="profile-edit-name-input">Tvoje jméno / Přezdívka:</label>
+        <input type="text" id="profile-edit-name-input" class="date-input" placeholder="Jméno">
+      </div>
+      <div class="date-input-wrapper">
+        <label for="profile-file-input">Profilová fotka:</label>
+        <input type="file" id="profile-file-input" class="date-input" accept="image/*" onchange="handleProfileFileSelect(this)">
+      </div>
+      
+      <div class="cropper-container-wrapper" id="cropper-wrapper">
+        <img id="cropper-image" src="">
+      </div>
+      
+      <div class="modal-buttons-row" style="margin-top: 20px;">
+        <button class="btn-cancel" onclick="closeProfileEditModal()">Zrušit</button>
+        <button class="btn-save" onclick="saveProfileEdit()">Uložit profil</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    // Přidán import deleteDoc pro mazání záznamů
     import { getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc, increment, onSnapshot, collection, query, orderBy, addDoc, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -333,8 +363,10 @@
     
     let currentActivityType = "Chůze";
     let editActivityType = "";
-    let selectedActivityId = null; // Drží ID upravované aktivity
-    let selectedActivityOldKm = 0; // Drží původní km pro výpočet rozdílu
+    let selectedActivityId = null; 
+    let selectedActivityOldKm = 0; 
+    
+    let cropper = null; // Instance ořezávače fotek
 
     function getWeekNumber(d) {
         d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
@@ -374,7 +406,7 @@
         const userSnap = await getDoc(userRef);
         if (!userSnap.exists()) {
           let displayName = user.displayName || user.email.split('@')[0];
-          await setDoc(userRef, { personalKm: 0, name: displayName });
+          await setDoc(userRef, { personalKm: 0, name: displayName, avatarUrl: "" });
         }
 
         const globalSnap = await getDoc(globalRef);
@@ -385,10 +417,20 @@
           const data = docSnap.data();
           const myKm = data.personalKm || 0;
           const myName = data.name || 'Neznámý';
+          const avatarUrl = data.avatarUrl || "";
+          
           document.getElementById('my-km-text').innerHTML = myKm.toLocaleString('cs-CZ');
           document.getElementById('profile-name').innerText = myName;
           document.getElementById('profile-total-km').innerText = myKm.toLocaleString('cs-CZ') + ' km';
-          document.getElementById('profile-avatar').innerText = myName.charAt(0).toUpperCase();
+          
+          // Pokud uživatel má nahranou fotku, zobrazíme ji v Profilu, jinak iniciálu
+          const pAvatarNode = document.getElementById('profile-avatar');
+          if (avatarUrl) {
+              pAvatarNode.innerHTML = `<img src="${avatarUrl}" alt="avatar">`;
+          } else {
+              pAvatarNode.innerText = myName.charAt(0).toUpperCase();
+              pAvatarNode.innerHTML = myName.charAt(0).toUpperCase();
+          }
         });
 
         unsubscribeGlobal = onSnapshot(globalRef, (docSnap) => {
@@ -403,7 +445,7 @@
           document.getElementById('progress-bar-fill').style.width = `${percent}%`;
         });
 
-        // NAČTENÍ AKTIVIT + VYTVOŘENÍ MAZACÍHO TLAČÍTKA TUŽKY
+        // NAČTENÍ HISTORIE AKTIVIT
         const activitiesCol = collection(db, "activities");
         const myActivitiesQuery = query(activitiesCol, where("uid", "==", user.uid), orderBy("timestamp", "desc"));
         
@@ -421,11 +463,10 @@
                const data = docSnap.data();
                const dateObj = data.timestamp ? data.timestamp.toDate() : new Date();
                const dateStr = dateObj.toLocaleDateString('cs-CZ');
-               const isoDate = dateObj.toISOString().split('T')[0]; // Pro předání do inputu
+               const isoDate = dateObj.toISOString().split('T')[0]; 
                const icon = icons[data.type] || icons["Chůze"];
                const actId = docSnap.id;
                
-               // Každému řádku vložíme skryté tlačítko pro editaci
                const item = document.createElement('div');
                item.className = 'leaderboard-item';
                item.innerHTML = `
@@ -440,7 +481,7 @@
            });
         });
 
-        // ŽEBŘÍČEK
+        // ŽEBŘÍČEK (Aktualizováno, aby zobrazoval profilové fotky, pokud existují!)
         const usersCol = collection(db, "users");
         const q = query(usersCol, orderBy("personalKm", "desc"));
         unsubscribeLeaderboard = onSnapshot(q, (querySnapshot) => {
@@ -454,12 +495,16 @@
             const data = docSnap.data();
             const name = data.name || 'Neznámý';
             const km = data.personalKm || 0;
+            const avatarUrl = data.avatarUrl || "";
             const initial = name.charAt(0).toUpperCase();
+            
+            // Určení, zda vypsat fotku nebo iniciálu do žebříčku
+            const avatarHtml = avatarUrl ? `<img src="${avatarUrl}" alt="avatar">` : initial;
             
             const htmlItem = `
               <div class="leaderboard-item">
                 <div class="lb-rank">${rank}</div>
-                <div class="lb-avatar">${initial}</div>
+                <div class="lb-avatar">${avatarHtml}</div>
                 <div class="lb-name">${name}</div>
                 <div class="lb-score">${km.toLocaleString('cs-CZ')} km</div>
               </div>
@@ -482,23 +527,16 @@
       }
     });
 
-    // ZÁPIS NOVÉ AKTIVITY
+    // ZÁPIS AKTIVITY
     window.saveActivity = async () => {
       let rawInput = document.getElementById('km-input').value.replace(',', '.');
       const km = parseFloat(rawInput);
-      
       if(km > 0 && currentUser) {
         const userRef = doc(db, "users", currentUser.uid);
         const globalRef = doc(db, "global", "stats");
         const activitiesCol = collection(db, "activities");
         try {
-            await addDoc(activitiesCol, {
-                uid: currentUser.uid,
-                km: km,
-                type: currentActivityType,
-                timestamp: new Date(),
-                weekStr: getWeekNumber(new Date())
-            });
+            await addDoc(activitiesCol, { uid: currentUser.uid, km: km, type: currentActivityType, timestamp: new Date(), weekStr: getWeekNumber(new Date()) });
             await updateDoc(userRef, { personalKm: increment(km) });
             await updateDoc(globalRef, { totalKm: increment(km) });
             window.closeModal();
@@ -506,103 +544,139 @@
       } else { alert("Zadej platný počet kilometrů."); }
     };
 
-    // ZAPNUTÍ / VYPNUTÍ REŽIMU ÚPRAW (ZOBRAZENÍ TUŽTIČEK)
+    // LOGIKA PRO FUNKČNÍ ÚPRAWU PROFILU
+    window.openProfileEditModal = async () => {
+        if(!currentUser) return;
+        const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+        if(userSnap.exists()){
+            document.getElementById('profile-edit-name-input').value = userSnap.data().name || "";
+        }
+        // Reset okna fotky
+        document.getElementById('profile-file-input').value = "";
+        document.getElementById('cropper-wrapper').style.display = "none";
+        if(cropper) { cropper.destroy(); cropper = null; }
+        
+        document.getElementById('profile-edit-modal').classList.add('active');
+    };
+
+    window.closeProfileEditModal = () => {
+        document.getElementById('profile-edit-modal').classList.remove('active');
+        if(cropper) { cropper.destroy(); cropper = null; }
+    };
+
+    // Zobrazení a start ořezávání při vybrání souboru
+    window.handleProfileFileSelect = (input) => {
+        const file = input.files[0];
+        if(!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const imageNode = document.getElementById('cropper-image');
+            imageNode.src = e.target.result;
+            
+            document.getElementById('cropper-wrapper').style.display = "block";
+            
+            if(cropper) cropper.destroy();
+            
+            // Nastavení ořezávače: perfektní kruh/čtverec (1:1)
+            cropper = new Cropper(imageNode, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+                background: false
+            });
+        };
+        reader.readAsDataURL(file);
+    };
+
+    // ULOŽENÍ ZMĚN PROFILU
+    window.saveProfileEdit = async () => {
+        const newName = document.getElementById('profile-edit-name-input').value.trim();
+        if(!newName) { alert("Jméno nesmí být prázdné."); return; }
+        
+        const userRef = doc(db, "users", currentUser.uid);
+        let updateData = { name: newName };
+        
+        // Pokud uživatel nahrál a ořízl novou fotku
+        if(cropper) {
+            // Vytáhne oříznuté plátno zmenšené na 150x150 px a převede ho na komprimovaný text
+            const canvas = cropper.getCroppedCanvas({ width: 150, height: 150 });
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.75); // Kvalita 75% pro úsporu místa
+            updateData.avatarUrl = dataUrl;
+        }
+        
+        try {
+            await updateDoc(userRef, updateData);
+            window.closeProfileEditModal();
+        } catch (error) {
+            console.error(error);
+            alert("Chyba při ukládání profilu.");
+        }
+    };
+
+    // EDITACE AKTIVIT
     window.toggleEditMode = () => {
         const listContainer = document.getElementById('profile-activity-list');
         const editBtn = document.getElementById('btn-toggle-edit-mode');
-        
         listContainer.classList.toggle('edit-mode-active');
         editBtn.classList.toggle('active-edit');
     };
 
-    // OTEVŘENÍ OKNA PRO ÚPRAVU
     window.openEditModal = (id, km, type, isoDate) => {
-        selectedActivityId = id;
-        selectedActivityOldKm = km;
-        editActivityType = type;
-        
+        selectedActivityId = id; selectedActivityOldKm = km; editActivityType = type;
         document.getElementById('edit-km-input').value = km;
         document.getElementById('edit-date-input').value = isoDate;
-        
-        // Aktivuje správnou bublinu typu aktivity
         const chips = document.querySelectorAll('#edit-modal .chip');
         chips.forEach(c => c.classList.remove('active'));
         document.getElementById('edit-chip-' + type).classList.add('active');
-        
         document.getElementById('edit-modal').classList.add('active');
     };
 
     window.closeEditModal = () => { document.getElementById('edit-modal').classList.remove('active'); selectedActivityId = null; };
-
     window.selectEditChip = (element) => {
         const chips = document.querySelectorAll('#edit-modal .chip');
         chips.forEach(c => c.classList.remove('active'));
-        element.classList.add('active');
-        editActivityType = element.getAttribute('data-type');
+        element.classList.add('active'); editActivityType = element.getAttribute('data-type');
     };
 
-    // FUNKCE: ULOŽIT ZMĚNY AKTIVITY (EDITACE)
     window.saveEditActivity = async () => {
         let rawInput = document.getElementById('edit-km-input').value.replace(',', '.');
         const newKm = parseFloat(rawInput);
         const newDateVal = document.getElementById('edit-date-input').value;
-
         if(newKm > 0 && selectedActivityId && currentUser) {
-            const diffKm = newKm - selectedActivityOldKm; // Spořítá rozdíl (může být i záporný)
+            const diffKm = newKm - selectedActivityOldKm; 
             const actRef = doc(db, "activities", selectedActivityId);
             const userRef = doc(db, "users", currentUser.uid);
             const globalRef = doc(db, "global", "stats");
-            
             const newDate = newDateVal ? new Date(newDateVal) : new Date();
-
             try {
-                // 1. Aktualizace samotné aktivity
-                await updateDoc(actRef, {
-                    km: newKm,
-                    type: editActivityType,
-                    timestamp: newDate,
-                    weekStr: getWeekNumber(newDate)
-                });
-
-                // 2. Připočtení/odečtení rozdílu do celkových statistik
+                await updateDoc(actRef, { km: newKm, type: editActivityType, timestamp: newDate, weekStr: getWeekNumber(newDate) });
                 await updateDoc(userRef, { personalKm: increment(diffKm) });
                 await updateDoc(globalRef, { totalKm: increment(diffKm) });
-
                 window.closeEditModal();
-            } catch (error) { console.error(error); alert("Chyba při úpravě dat."); }
+            } catch (error) { console.error(error); alert("Chyba při úpravě."); }
         } else { alert("Zadej platné hodnoty."); }
     };
 
-    // FUNKCE: SMAZAT AKTIVITU
     window.deleteActivity = async () => {
         if(selectedActivityId && currentUser && confirm("Opravdu chceš tuto aktivitu smazat?")) {
             const actRef = doc(db, "activities", selectedActivityId);
             const userRef = doc(db, "users", currentUser.uid);
             const globalRef = doc(db, "global", "stats");
-            
-            // Odečteme celou hodnotu smazané aktivity
             const minusKm = -selectedActivityOldKm;
-
             try {
-                // 1. Smazání z deníčku
                 await deleteDoc(actRef);
-
-                // 2. Odečtení kilometrů z počítadel
                 await updateDoc(userRef, { personalKm: increment(minusKm) });
                 await updateDoc(globalRef, { totalKm: increment(minusKm) });
-
                 window.closeEditModal();
-            } catch (error) { console.error(error); alert("Chyba při mazání aktivity."); }
+            } catch (error) { console.error(error); alert("Chyba při mazání."); }
         }
     };
 
-    // OSTATNÍ STRUKTURÁLNÍ FUNKCE
     window.switchTab = (tabId) => {
       document.getElementById('tab-dashboard').classList.add('hidden'); document.getElementById('tab-statistics').classList.add('hidden'); document.getElementById('tab-profile').classList.add('hidden');
       document.getElementById('nav-dashboard').classList.remove('active'); document.getElementById('nav-statistics').classList.remove('active'); document.getElementById('nav-profile').classList.remove('active');
       document.getElementById('tab-' + tabId).classList.remove('hidden'); document.getElementById('nav-' + tabId).classList.add('active');
-      
-      // Při přepnutí záložky raději vypneme režim úprav
       const listContainer = document.getElementById('profile-activity-list');
       if (listContainer) listContainer.classList.remove('edit-mode-active');
       const editBtn = document.getElementById('btn-toggle-edit-mode');
