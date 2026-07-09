@@ -705,11 +705,17 @@
 
             svgContent += `<circle cx="18" cy="18" r="15.915" fill="transparent" stroke="${color}" stroke-width="4" stroke-dasharray="${drawPct} ${100 - drawPct}" stroke-dashoffset="${offset}"></circle>`;
             offset -= pct;
-            legendHtml += `<div class="chart-legend-row"><div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; background-color:${color}; border-radius:50%; display:inline-block;"></span><span>${key.toLowerCase()}</span></div><span>${Math.round(pct)} %</span></div>`;
+            legendHtml += `<div class="chart-legend-row" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--gray-border);">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span style="width:10px; height:10px; background-color:transparent; display:inline-block;"></span>
+                <span style="color:var(--text-gray);">celkem aktivit</span>
+            </div>
+            <span style="color:var(--text-dark); font-weight:700;">${totalActs}</span>
+        </div>`;
         });
         
         legendHtml += `<div class="chart-legend-row" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--gray-border); color:var(--text-gray);">
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; background-color:var(--text-gray); border-radius:50%; display:inline-block;"></span><span>počet platných aktivit</span></div>
+            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; background-color:var(--text-gray); border-radius:50%; display:inline-block;"></span><span>počet aktivit</span></div>
             <span style="color:var(--text-dark);">${totalActs}</span>
           </div>`;
         
