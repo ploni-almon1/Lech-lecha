@@ -34,7 +34,7 @@
     body { background-color: var(--bg-color); color: var(--text-dark); -webkit-font-smoothing: antialiased; }
     .hidden { display: none !important; }
 
-    button, a, .nav-item, .chip, .leaderboard-item, .color-circle { -webkit-tap-highlight-color: transparent; outline: none; }
+    button, a, .nav-item, .chip, .leaderboard-item { -webkit-tap-highlight-color: transparent; outline: none; }
 
     #private-view { max-width: 600px; margin: 0 auto; padding-bottom: 90px; }
     .page-title { font-size: 1.5em; font-weight: 700; padding: 25px 20px 15px 20px; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; }
@@ -75,12 +75,6 @@
     .lb-avatar img { width: 100%; height: 100%; object-fit: cover; }
     .lb-name { flex: 1; font-weight: 600; color: var(--text-dark); font-size: 0.95em; }
     .lb-score { font-weight: 700; color: var(--text-dark); font-size: 0.95em; text-align: right; }
-
-    /* DYNAMIC GOAL BANNER */
-    .goal-banner { border-radius: 20px; padding: 20px; margin: 0 20px 20px 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: center; min-height: 100px; }
-    .goal-banner h4 { font-size: 1.05em; font-weight: 700; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-    .goal-banner p { color: rgba(0,0,0,0.6); font-size: 0.85em; font-weight: 500; }
-    .goal-graphic { position: absolute; right: -10px; bottom: 0; height: 100%; width: 50%; opacity: 0.6; pointer-events: none; }
 
     /* PROFIL */
     .profile-header-new { display: flex; flex-direction: column; align-items: center; padding: 10px 20px 20px 20px; }
@@ -124,10 +118,6 @@
     .date-input-wrapper label { font-size: 0.85em; color: var(--text-gray); font-weight: 600; display: block; margin-bottom: 5px; }
     .date-input { width: 100%; padding: 12px; border: 1px solid var(--gray-border); border-radius: 12px; font-family: inherit; font-size: 1em; outline: none; }
 
-    .color-picker { display: flex; gap: 10px; margin-top: 5px; }
-    .color-circle { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: 0.2s; }
-    .color-circle.active { border-color: var(--text-dark); transform: scale(1.1); box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--text-dark); }
-
     .modal-buttons-row { display: flex; gap: 10px; width: 100%; }
     .btn-save { flex: 1; background-color: var(--primary-orange); color: var(--white); border: none; padding: 15px; border-radius: 16px; font-weight: 600; cursor: pointer; }
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -154,7 +144,6 @@
 </head>
 <body>
 
-  <!-- VEŘEJNÁ ČÁST -->
   <div id="public-view">
     <h1 class="page-title" style="justify-content: center; font-size: 2em; margin-top: 40px;">Lech lecha!</h1>
     <p style="color: var(--text-gray);">Přidej se k naší společné výzvě.</p>
@@ -176,10 +165,8 @@
     </div>
   </div>
 
-  <!-- SOUKROMÁ ČÁST -->
   <div id="private-view" class="hidden">
     
-    <!-- ZÁLOŽKA 1: PŘEHLED -->
     <div id="tab-dashboard">
       <div class="page-title">Lech lecha!</div>
       
@@ -200,7 +187,7 @@
       </div>
       
       <div id="dash-joined-wrapper" style="display:none;">
-        <div class="section-title" style="margin: 0 20px 10px 20px;">Moje výzva</div>
+        <div class="section-title" style="margin: 0 20px 10px 20px;">Moje výzvy</div>
         <div id="dash-joined-challenges"></div>
       </div>
 
@@ -212,20 +199,14 @@
       </div>
     </div> 
 
-    <!-- ZÁLOŽKA 2: STATISTIKA -->
     <div id="tab-statistics" class="hidden">
       <div class="page-title">Statistika</div>
 
-      <!-- 1. Moje výzvy (progres) -->
       <div id="stats-joined-wrapper" style="display:none;">
         <div class="section-title" style="margin: 0 20px 10px 20px;">Moje výzvy</div>
         <div id="stats-joined-challenges"></div>
       </div>
 
-      <!-- 2. Dynamické Cílové Karty -->
-      <div id="stats-goal-cards"></div>
-
-      <!-- 3. Týdenní přehled -->
       <div class="card">
         <h3 style="font-size: 1.05em; font-weight: 700; color: var(--text-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-gray)"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
@@ -234,7 +215,6 @@
         <div id="stats-weekly-list" class="leaderboard-list"></div>
       </div>
 
-      <!-- 4. Celkový přehled -->
       <div class="card">
         <h3 style="font-size: 1.05em; font-weight: 700; color: var(--text-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
             <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-gray)"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
@@ -243,13 +223,11 @@
         <div id="stats-overall-list" class="leaderboard-list"></div>
       </div>
       
-      <!-- 5. Graf -->
       <div class="card" style="display:flex; align-items:center; gap:20px;">
           <div id="chart-graphics-container" style="flex:0 0 120px;"></div>
           <div id="chart-legend-container" style="flex:1;"></div>
       </div>
 
-      <!-- 6. Ostatní komunitní výzvy k připojení -->
       <div class="section-title" style="margin: 20px 20px 10px 20px;">Další komunitní výzvy</div>
       <div class="card">
         <div id="stats-custom-challenges" style="display:flex; flex-direction:column; gap:10px;"></div>
@@ -257,7 +235,6 @@
       </div>
     </div> 
 
-    <!-- ZÁLOŽKA 3: MAPA -->
     <div id="tab-map" class="hidden">
       <div class="page-title">Mapa</div>
       <div style="background-color: #E5E5F7; height: 400px; margin: 0 20px 20px 20px; border-radius: 20px; display: flex; align-items: center; justify-content: center;">
@@ -265,7 +242,6 @@
       </div>
     </div>
 
-    <!-- ZÁLOŽKA 4: PROFIL -->
     <div id="tab-profile" class="hidden">
       <div class="page-title">Můj profil</div>
 
@@ -282,6 +258,11 @@
             <button class="btn-logout-prof" onclick="logoutUser()">Odhlásit</button>
         </div>
       </div>
+
+      <div class="section-title" style="margin: 20px 20px 10px 20px;">Přehled mých aktivit <span onclick="toggleEditMode()" id="btn-toggle-edit-mode" style="display:flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Upravit</span></div>
+      <div class="card" style="padding: 10px 20px;">
+        <div id="profile-activity-list" class="leaderboard-list"></div>
+      </div>
       
       <div id="profile-my-challenges-wrapper" style="display:none;">
           <div class="section-title" style="margin: 0 20px 10px 20px;">Moje vytvořené výzvy</div>
@@ -289,31 +270,16 @@
             <div id="profile-my-challenges" class="leaderboard-list"></div>
           </div>
       </div>
-
-      <div class="section-title" style="margin: 20px 20px 10px 20px;">Přehled mých aktivit <span onclick="toggleEditMode()" id="btn-toggle-edit-mode" style="display:flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Upravit</span></div>
-      <div class="card" style="padding: 10px 20px;">
-        <div id="profile-activity-list" class="leaderboard-list"></div>
-      </div>
     </div> 
 
-    <!-- SPODNÍ NAVIGAČNÍ LIŠTA -->
     <div class="bottom-nav">
-      <div class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
-        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Přehled
-      </div>
-      <div class="nav-item" id="nav-statistics" onclick="switchTab('statistics')">
-        <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>Statistika
-      </div>
-      <div class="nav-item" id="nav-map" onclick="switchTab('map')">
-        <svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>Mapa
-      </div>
-      <div class="nav-item" id="nav-profile" onclick="switchTab('profile')">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Profil
-      </div>
+      <div class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Přehled</div>
+      <div class="nav-item" id="nav-statistics" onclick="switchTab('statistics')"><svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>Statistika</div>
+      <div class="nav-item" id="nav-map" onclick="switchTab('map')"><svg viewBox="0 0 24 24"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>Mapa</div>
+      <div class="nav-item" id="nav-profile" onclick="switchTab('profile')"><svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>Profil</div>
     </div>
   </div>
 
-  <!-- MODALY -->
   <div id="activity-modal" class="modal-overlay" onclick="if(event.target===this) closeModal()">
     <div class="modal-content">
       <h3>Nová aktivita</h3>
@@ -370,7 +336,7 @@
         <button class="btn-cancel" onclick="closeProfileEditModal()">Zrušit</button>
         <button class="btn-save" onclick="saveProfileEdit()">Uložit profil</button>
       </div>
-      <button class="btn-delete" onclick="deleteUserAccount()">Odstranit celý můj profil</button>
+      <button class="btn-delete" style="background:#FEE2E2; color:#EF4444;" onclick="deleteUserAccount()">Odstranit celý můj profil</button>
     </div>
   </div>
   
@@ -389,21 +355,6 @@
           <div class="chip active" onclick="toggleChallengeChip(this)">Chůze</div><div class="chip active" onclick="toggleChallengeChip(this)">Běh</div>
           <div class="chip active" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" onclick="toggleChallengeChip(this)">Plavání</div>
           <div class="chip" onclick="toggleChallengeChip(this)">Běžky</div>
-        </div>
-      </div>
-      <div class="date-input-wrapper" style="margin-top:20px;">
-        <label>Karta s cílem (nepovinné ve statistice):</label>
-        <input type="text" id="new-chal-goal-text" class="date-input" placeholder="Cíl: ">
-      </div>
-      <div class="date-input-wrapper">
-        <label>Barva karty:</label>
-        <div class="color-picker" id="new-chal-colors">
-          <div class="color-circle active" data-color="#D1FAE5" data-text="#059669" style="background:#D1FAE5;" onclick="selectGoalColor(this, 'new')"></div>
-          <div class="color-circle" data-color="#FEF3C7" data-text="#D97706" style="background:#FEF3C7;" onclick="selectGoalColor(this, 'new')"></div>
-          <div class="color-circle" data-color="#FFEDD5" data-text="#EA580C" style="background:#FFEDD5;" onclick="selectGoalColor(this, 'new')"></div>
-          <div class="color-circle" data-color="#E0F2FE" data-text="#0284C7" style="background:#E0F2FE;" onclick="selectGoalColor(this, 'new')"></div>
-          <div class="color-circle" data-color="#EDE9FE" data-text="#4F46E5" style="background:#EDE9FE;" onclick="selectGoalColor(this, 'new')"></div>
-          <div class="color-circle" data-color="#F3F4F6" data-text="#4B5563" style="background:#F3F4F6;" onclick="selectGoalColor(this, 'new')"></div>
         </div>
       </div>
       <div class="modal-buttons-row" style="margin-top: 20px;">
@@ -428,21 +379,6 @@
           <div class="chip" data-type="Chůze" onclick="toggleChallengeChip(this)">Chůze</div><div class="chip" data-type="Běh" onclick="toggleChallengeChip(this)">Běh</div>
           <div class="chip" data-type="Kolo" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" data-type="Plavání" onclick="toggleChallengeChip(this)">Plavání</div>
           <div class="chip" data-type="Běžky" onclick="toggleChallengeChip(this)">Běžky</div>
-        </div>
-      </div>
-      <div class="date-input-wrapper" style="margin-top:20px;">
-        <label>Karta s cílem (nepovinné ve statistice):</label>
-        <input type="text" id="edit-chal-goal-text" class="date-input" placeholder="Cíl: ">
-      </div>
-      <div class="date-input-wrapper">
-        <label>Barva karty:</label>
-        <div class="color-picker" id="edit-chal-colors">
-          <div class="color-circle" data-color="#D1FAE5" data-text="#059669" style="background:#D1FAE5;" onclick="selectGoalColor(this, 'edit')"></div>
-          <div class="color-circle" data-color="#FEF3C7" data-text="#D97706" style="background:#FEF3C7;" onclick="selectGoalColor(this, 'edit')"></div>
-          <div class="color-circle" data-color="#FFEDD5" data-text="#EA580C" style="background:#FFEDD5;" onclick="selectGoalColor(this, 'edit')"></div>
-          <div class="color-circle" data-color="#E0F2FE" data-text="#0284C7" style="background:#E0F2FE;" onclick="selectGoalColor(this, 'edit')"></div>
-          <div class="color-circle" data-color="#EDE9FE" data-text="#4F46E5" style="background:#EDE9FE;" onclick="selectGoalColor(this, 'edit')"></div>
-          <div class="color-circle" data-color="#F3F4F6" data-text="#4B5563" style="background:#F3F4F6;" onclick="selectGoalColor(this, 'edit')"></div>
         </div>
       </div>
       <div class="modal-buttons-row" style="margin-top: 20px;">
@@ -503,12 +439,13 @@
         let isSunday = new Date().getDay() === 0; if(isSunday) weekNo += 1; return d.getUTCFullYear() + "-" + weekNo;
     }
 
+    /* ČISTÉ OFICIÁLNÍ IKONY MATERIL DESIGN 24x24 */
     const icons = {
-      "Běh": `<svg class="activity-list-icon" viewBox="0 0 416 512"><path d="M272 96a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm-74.7 104.1l-42.3-30.8c-17.6-12.8-42.5-9.8-56.5 7.4L18.4 286.2c-11.2 13.8-9 34 10.7 43.1l21.9 10c14.5 6.6 31.8 1.4 40.5-12.2l49.2-76.3 35.5 23.4c21.8 14.4 49 15.6 71.9 2.2l89.6-52.4c15.2-8.9 20.3-28.5 11.4-43.7s-28.5-20.3-43.7-11.4l-75.1 43.9-33.1-22.1v-48.4c0-18.6-10.4-35.6-26.6-43.5zM128 368c0 14.7 9.6 27.6 23.6 31.6l84.4 24.1L263.2 492c5.6 16.8 23.7 25.8 40.5 20.2s25.8-23.7 20.2-40.5l-33.5-100.5c-3.6-10.7-12-19.1-22.7-22.7L181.2 324l-31.5-9.1c-13-3.7-26.6 2.5-32 14.8l-12.7 29.1c-5.2 11.9 1 25.6 13.1 30.1l9.9 3.8z"/></svg>`,
+      "Běh": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-1.98 8.15 1.1-1.18c.43-.44.92-.73 1.48-.82l2.3-.35-1.01 4.5 2.11 2z"/></svg>`,
       "Kolo": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5zm5.8-10l2.4-2.4.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.7-1.6-.7s-1.1.2-1.4.6L8.5 8.4c-.3.4-.5.8-.5 1.4v5h2v-4.1l1.8-1.8zM19 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z"/></svg>`,
       "Chůze": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>`,
-      "Plavání": `<svg class="activity-list-icon" viewBox="0 0 512 512"><path d="M312 96c0 26.5-21.5 48-48 48s-48-21.5-48-48s21.5-48 48-48s48 21.5 48 48zm-164.9 33.2c-5.1-13.3-20.3-19.9-33.6-14.8l-72 27.6c-12.6 4.8-18.9 18.9-14.1 31.6s18.9 18.9 31.6 14.1l46.1-17.7 20.3 52.8c1 2.5 2.2 4.9 3.6 7.1l32.5 53.6-26.2 36.6c-10 14-8.8 33.6 2.9 46.4l70.1 80.1c11.6 13.2 31.5 14.6 44.8 3s14.6-31.5 3-44.8l-52.9-60.5L257.6 256H368c14.7 0 27.5-9.6 31.2-23.8l38.2-143.1c3.4-12.8-4.2-25.9-17-29.3s-25.9 4.2-29.3 17l-30.8 115.2H314.1l-22.9-65.4c-8.9-25.4-32.6-42.3-59.6-42.3c-10.3 0-20.3 2.5-29.1 7.1l-55.4 27.8zm339.4 121.2c-11.4-10-28.7-8.9-38.7 2.6l-20.7 23.6-26.6-20.1c-10-7.6-24.5-5.6-32.1 4.4s-5.6 24.5 4.4 32.1l42.4 32.1c5.1 3.9 11.4 5.4 17.6 4.4s11.8-4.6 15.6-9.8l30.6-34.9c10-11.4 8.9-28.7-2.6-38.7zM0 432c0-17.7 14.3-32 32-32h5.5c15.2 0 29.3-8.8 36.2-22.6c3.4-6.9 10.3-11.4 18.1-11.4s14.7 4.5 18.1 11.4C116.8 391.2 131 400 146.2 400h5.5c17.7 0 32 14.3 32 32s-14.3 32-32 32h-5.5c-15.2 0-29.3 8.8-36.2 22.6c-3.4 6.9-10.3 11.4-18.1 11.4s-14.7-4.5-18.1-11.4C66.7 471.2 52.6 464 37.4 464H32c-17.7 0-32-14.3-32-32zm480 32h-5.5c-15.2 0-29.3 8.8-36.2 22.6c-3.4 6.9-10.3 11.4-18.1 11.4s-14.7-4.5-18.1-11.4C395.2 471.2 381 464 365.8 464h-5.5c-17.7 0-32-14.3-32-32s14.3-32 32-32h5.5c15.2 0 29.3-8.8 36.2-22.6c3.4-6.9 10.3-11.4 18.1-11.4s14.7 4.5 18.1 11.4C443.2 391.2 457.4 400 472.6 400h5.5c17.7 0 32 14.3 32 32s-14.3 32-32 32z"/></svg>`,
-      "Běžky": `<svg class="activity-list-icon" viewBox="0 0 448 512"><path d="M208 64c0-17.7 14.3-32 32-32s32 14.3 32 32s-14.3 32-32 32s-32-14.3-32-32zm-16 80c0-13.8 8.6-26 21.6-30.8l41-15.4c12.2-4.6 25.9-4.8 38.2-1l50 15.4c13.7 4.2 24.2 15.6 26.6 30.1l11.6 69.8c2.9 17.4-8.9 33.9-26.3 36.8s-33.9-8.9-36.8-26.3l-7.3-43.9-19 32.5c-6.8 11.6-18.6 19.3-32 21.1L221 240l-28.7 34.4c-9.2 11-24.3 15.4-38.1 11.1L82 263.1c-16.8-5.3-26.2-23.2-20.9-40s23.2-26.2 40-20.9l51 16L176 190.5V176c0-17.7 14.3-32 32-32h-16zm63.4 102.8l20.4-34.9c5.1 8 11.6 15.1 19.4 21.1L355 281.9c14.2 11 34.6 8.3 45.6-5.8s8.3-34.6-5.8-45.6l-50.5-39.3-15-90.1c-2.9-17.4 8.9-33.9 26.3-36.8s33.9 8.9 36.8 26.3l21 126.1c4.5 27.2-7 54.8-29 71.9l-60.8 47.3c14.9 20 23.6 44.5 23.6 70.8c0 58-40.2 106.6-94.4 121.3c-15.5 4.2-31.9-4.9-36.1-20.5s4.9-31.9 20.5-36.1c32.7-8.9 56.5-38.9 56.5-74c0-30.8-18.4-57.3-44.5-69.3l-18.2-31.1zM53.1 366.1c-9.1-15-29-19.8-44-10.7s-19.8 29-10.7 44l64 105c6.3 10.3 17 17 28.9 18.2s23.8-3 31.3-11.6l81.6-93.3c11.6-13.2 10.3-33.3-2.9-44.9s-33.3-10.3-44.9 2.9l-61.9 70.7-41.4-80.3z"/></svg>`
+      "Plavání": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M20.54 5.4c-1.36 0-2.22.53-2.75.83-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83s-2.22.53-2.75.83c-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83-1.4 0-2.29.56-2.85.88l1.01 1.74c.43-.25.99-.54 1.84-.54s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83 1.35 0 2.21-.52 2.74-.82.47-.27 1.18-.66 2.03-.66v-2c-1.35 0-2.21.52-2.74.82-.47.27-1.18.66-2.03.66-.86 0-1.57-.39-2.03-.66zM20.54 10.4c-1.36 0-2.22.53-2.75.83-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83s-2.22.53-2.75.83c-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83-1.4 0-2.29.56-2.85.88l1.01 1.74c.43-.25.99-.54 1.84-.54s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83 1.35 0 2.21-.52 2.74-.82.47-.27 1.18-.66 2.03-.66v-2c-1.35 0-2.21.52-2.74.82-.47.27-1.18.66-2.03.66-.86 0-1.57-.39-2.03-.66zM20.54 15.4c-1.36 0-2.22.53-2.75.83-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83s-2.22.53-2.75.83c-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83-1.4 0-2.29.56-2.85.88l1.01 1.74c.43-.25.99-.54 1.84-.54s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83 1.35 0 2.21-.52 2.74-.82.47-.27 1.18-.66 2.03-.66v-2c-1.35 0-2.21.52-2.74.82-.47.27-1.18.66-2.03.66-.86 0-1.57-.39-2.03-.66zM15 5.54c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>`,
+      "Běžky": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M20.5 17c-2.43 0-4.63-1.18-6-3l-2.08-2.71c-.72-.94-1.83-1.52-3.03-1.52-.77 0-1.52.22-2.16.63L2.4 13.5l1.6 2.44L8 13.53V20h2v-5l2-2 1.48 1.93c1.61 2.09 4.14 3.4 6.92 3.4L22 18.25l-1.5-2.25zM12 4.5c0 1.38 1.12 2.5 2.5 2.5S17 5.88 17 4.5 15.88 2 14.5 2 12 3.12 12 4.5zM2 20h20v2H2z"/></svg>`
     };
 
     onAuthStateChanged(auth, async (user) => {
@@ -574,8 +511,8 @@
 
         unsubscribeChallengesList = onSnapshot(query(collection(db, "challenges"), orderBy("createdAt", "desc")), async (snap) => {
             const statsList = document.getElementById('stats-custom-challenges'); const dashList = document.getElementById('dash-joined-challenges'); const profList = document.getElementById('profile-my-challenges');
-            const statsJoinedList = document.getElementById('stats-joined-challenges'); const goalCardsWrap = document.getElementById('stats-goal-cards');
-            statsList.innerHTML = ''; dashList.innerHTML = ''; profList.innerHTML = ''; statsJoinedList.innerHTML = ''; goalCardsWrap.innerHTML = '';
+            const statsJoinedList = document.getElementById('stats-joined-challenges');
+            statsList.innerHTML = ''; dashList.innerHTML = ''; profList.innerHTML = ''; statsJoinedList.innerHTML = '';
             
             const allUsersSnap = await getDocs(collection(db, "users")); let userMap = {};
             allUsersSnap.forEach(uDoc => { const ud = uDoc.data(); userMap[uDoc.id] = { name: ud.name || "Neznámý", avatarUrl: ud.avatarUrl || "" }; });
@@ -630,9 +567,9 @@
                     let daysText = diffDays > 0 ? `zbývá ${diffDays} dní` : "Výzva skončila";
 
                     let sharedHTML = `
-                      <h3 style="color: var(--text-dark); font-size: 1.1em; font-weight: 700; margin-bottom: 12px;">${d.name}</h3>
+                      <h3 style="color: var(--text-dark); font-size: 1.2em; font-weight: 800; margin-bottom: 15px;">${d.name}</h3>
                       <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 8px;">
-                          <h3 style="color: var(--text-dark); font-size: 1.2em; font-weight: 800; margin:0;">${safeCurrentKm.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} / ${d.targetKm} <span style="font-size:0.75em; font-weight:600;">km</span></h3>
+                          <div style="color: var(--text-dark); font-size: 1.05em; font-weight: 700; margin:0;">${safeCurrentKm.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} / ${d.targetKm} <span style="font-size:0.8em; font-weight:600;">km</span></div>
                           <div style="color: var(--text-gray); font-size: 0.85em; font-weight: 500;">${daysText}</div>
                       </div>
                       <div class="chal-progress-bg"><div class="chal-progress-fill" style="width: ${pct}%;"></div></div>
@@ -640,22 +577,17 @@
 
                     const dashCard = document.createElement('div'); dashCard.className = 'card'; dashCard.style.padding = '20px'; dashCard.innerHTML = sharedHTML; dashList.appendChild(dashCard);
                     const statsCardCopy = document.createElement('div'); statsCardCopy.className = 'card'; statsCardCopy.style.padding = '20px'; statsCardCopy.innerHTML = sharedHTML; statsJoinedList.appendChild(statsCardCopy);
-                    
-                    if (d.goalText) {
-                        const missing = Math.max(0, d.targetKm - safeCurrentKm);
-                        const goalCard = document.createElement('div'); goalCard.className = 'goal-banner'; goalCard.style.backgroundColor = d.goalBgColor || '#D1FAE5';
-                        goalCard.innerHTML = `<h4 style="color: ${d.goalTextColor || '#059669'};"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z"/></svg> Cíl: ${d.goalText}</h4><p>Zbývá ${missing.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} km</p>`;
-                        goalCardsWrap.appendChild(goalCard);
-                    }
                 }
 
                 if(isCreator) {
-                    const profCard = document.createElement('div'); profCard.style.cssText = 'display:flex; align-items:center; justify-content:space-between; padding:15px; border-bottom:1px solid var(--gray-border); cursor:pointer;';
+                    const profCard = document.createElement('div'); profCard.className = 'leaderboard-item'; profCard.style.cursor = 'default';
                     profCard.innerHTML = `
-                        <div><div style="color: var(--text-dark); font-weight: 600; font-size:1em; margin-bottom:2px;">${d.name}</div><div style="color: var(--text-gray); font-size: 0.75em;">${new Date(d.start).toLocaleDateString('cs-CZ')} - ${new Date(d.end).toLocaleDateString('cs-CZ')}</div></div>
+                        <div class="lb-name" style="font-weight:700;">${d.name} <span style="font-size: 0.8em; color: var(--text-gray); font-weight:500;">(${d.targetKm} km)</span></div>
                         <div style="display:flex; align-items:center; gap:10px;">
                             <div style="background-color: rgba(16, 185, 129, 0.1); color: var(--green-success); padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 600;">✔ Jsi zapojen</div>
-                            <button style="background:transparent; border:none; padding:5px; cursor:pointer;" onclick="openEditChallengeModal('${cid}')"><svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-gray)"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></button>
+                            <button class="btn-inline-edit" style="display:flex;" onclick="openEditChallengeModal('${cid}')">
+                              <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                            </button>
                         </div>
                     `;
                     profList.appendChild(profCard);
@@ -666,7 +598,10 @@
             if(statsJoinedList.innerHTML === '') document.getElementById('stats-joined-wrapper').style.display = 'none';
             
             if(profList.innerHTML === '') { document.getElementById('profile-my-challenges-wrapper').style.display = 'none'; } 
-            else { document.getElementById('profile-my-challenges-wrapper').style.display = 'block'; }
+            else { 
+                document.getElementById('profile-my-challenges-wrapper').style.display = 'block'; 
+                // Odstranění linky u posledního prvku (nebo jediného) probíhá automaticky přes CSS .leaderboard-item:last-child
+            }
         });
 
         unsubscribeLeaderboard = onSnapshot(query(collection(db, "users"), orderBy("personalKm", "desc")), (querySnapshot) => {
@@ -700,7 +635,8 @@
             legendBox.innerHTML = `<div style="color:var(--text-gray); font-size:0.85em; text-align:center;">Žádná data</div>`; return;
         }
 
-        const colors = { "Chůze": "#3a3358", "Běh": "#ff5e00", "Kolo": "#27ae60", "Plavání": "#2980b9", "Běžky": "#8e44ad" };
+        // Profi paleta odstínů tmavě modré
+        const colors = { "Chůze": "#1E1B4B", "Běh": "#312E81", "Kolo": "#4338CA", "Plavání": "#6366F1", "Běžky": "#818CF8" };
         let offset = 100; let svgContent = ''; let legendHtml = "";
 
         for(let key in sums) {
@@ -806,7 +742,7 @@
     };
     window.closeProfileEditModal = () => { document.getElementById('profile-edit-modal').classList.remove('active'); if(cropper) { cropper.destroy(); cropper = null; } };
     window.deleteProfilePhoto = async () => { if(confirm("Smazat fotku?")) { await updateDoc(doc(db, "users", currentUser.uid), { avatarUrl: "" }); window.closeProfileEditModal(); } };
-    window.deleteUserAccount = async () => { if(confirm("⚠️ OPRAVDU smazat celý profil a data?")) { try { await deleteDoc(doc(db, "users", currentUser.uid)); await deleteUser(currentUser); window.closeProfileEditModal(); } catch (e) { alert("Chyba."); } } };
+    window.deleteUserAccount = async () => { if(confirm("⚠️ OPRAVDU smazat celý profil a data?")) { try { await deleteDoc(doc(db, "users", currentUser.uid)); await deleteUser(currentUser); window.closeProfileEditModal(); } catch (e) { alert("Chyba. Možná je nutné se odhlásit a znovu přihlásit."); } } };
     window.handleProfileFileSelect = (input) => {
         const file = input.files[0]; if(!file) return; document.getElementById('btn-delete-avatar').style.display = "none";
         const reader = new FileReader(); reader.onload = function(e) {
@@ -822,7 +758,7 @@
         await updateDoc(doc(db, "users", currentUser.uid), updateData); window.closeProfileEditModal();
     };
 
-    window.toggleEditMode = () => { document.getElementById('profile-activity-list').classList.toggle('edit-mode-active'); };
+    window.toggleEditMode = () => { document.getElementById('profile-activity-list').classList.toggle('edit-mode-active'); document.getElementById('btn-toggle-edit-mode').classList.toggle('active-edit'); };
     window.openEditModal = (id, km, type, isoDate) => {
         selectedActivityId = id; selectedActivityOldKm = km; editActivityType = type; selectedActivityDate = isoDate;
         document.getElementById('edit-km-input').value = km; document.getElementById('edit-date-input').value = isoDate;
@@ -834,7 +770,6 @@
     window.selectEditChip = (element) => { document.querySelectorAll('#edit-modal .chip').forEach(c => c.classList.remove('active')); element.classList.add('active'); editActivityType = element.getAttribute('data-type'); };
 
     // VÝZVY
-    window.selectGoalColor = (element, prefix) => { document.querySelectorAll(`#${prefix}-chal-colors .color-circle`).forEach(c => c.classList.remove('active')); element.classList.add('active'); };
     window.joinChallenge = async (chalId) => { try { await updateDoc(doc(db, "challenges", chalId), { members: arrayUnion(currentUser.uid), [`memberKm.${currentUser.uid}`]: 0 }); } catch(e) { alert("Chyba."); } };
     window.openCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.add('active'); };
     window.closeCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.remove('active'); };
@@ -847,16 +782,11 @@
         if(!name || !targetKm || !start || !end) { alert("Vyplň všechna pole."); return; }
         const allowedActivities = []; document.querySelectorAll('#new-chal-chips .chip.active').forEach(c => { allowedActivities.push(c.innerText.trim()); });
         if(allowedActivities.length === 0) { alert("Vyber aspoň jeden sport."); return; }
-        
-        const goalText = document.getElementById('new-chal-goal-text').value.trim();
-        const activeColorEl = document.querySelector('#new-chal-colors .color-circle.active');
-        const goalBgColor = activeColorEl ? activeColorEl.getAttribute('data-color') : '#D1FAE5';
-        const goalTextColor = activeColorEl ? activeColorEl.getAttribute('data-text') : '#059669';
 
         isSaving = true; const btn = document.getElementById('btn-create-chal'); btn.innerText = "Vytvářím..."; btn.disabled = true;
         try {
-            await addDoc(collection(db, "challenges"), { name, targetKm, start, end, allowedActivities, goalText, goalBgColor, goalTextColor, creatorId: currentUser.uid, members: [currentUser.uid], currentKm: 0, memberKm: { [currentUser.uid]: 0 }, createdAt: new Date() });
-            window.closeCreateChallengeModal(); document.getElementById('new-chal-name').value = ''; document.getElementById('new-chal-km').value = ''; document.getElementById('new-chal-goal-text').value = '';
+            await addDoc(collection(db, "challenges"), { name, targetKm, start, end, allowedActivities, creatorId: currentUser.uid, members: [currentUser.uid], currentKm: 0, memberKm: { [currentUser.uid]: 0 }, createdAt: new Date() });
+            window.closeCreateChallengeModal(); document.getElementById('new-chal-name').value = ''; document.getElementById('new-chal-km').value = '';
         } catch (e) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Vytvořit"; btn.disabled = false; }
     };
 
@@ -866,13 +796,7 @@
         if(snap.exists()) {
             const data = snap.data(); document.getElementById('edit-chal-name').value = data.name; document.getElementById('edit-chal-km').value = data.targetKm;
             document.getElementById('edit-chal-start').value = data.start; document.getElementById('edit-chal-end').value = data.end;
-            document.getElementById('edit-chal-goal-text').value = data.goalText || "";
             document.querySelectorAll('#edit-chal-chips .chip').forEach(c => { if(data.allowedActivities && data.allowedActivities.includes(c.getAttribute('data-type'))) { c.classList.add('active'); } else { c.classList.remove('active'); } });
-            
-            document.querySelectorAll('#edit-chal-colors .color-circle').forEach(c => c.classList.remove('active'));
-            if(data.goalBgColor) { const tC = document.querySelector(`#edit-chal-colors .color-circle[data-color="${data.goalBgColor}"]`); if(tC) tC.classList.add('active'); } 
-            else { document.querySelector(`#edit-chal-colors .color-circle`).classList.add('active'); }
-
             document.getElementById('edit-challenge-modal').classList.add('active');
         }
     };
@@ -884,14 +808,9 @@
         const allowedActivities = []; document.querySelectorAll('#edit-chal-chips .chip.active').forEach(c => { allowedActivities.push(c.getAttribute('data-type')); });
         if(!name || !targetKm || !start || !end || allowedActivities.length === 0) return;
 
-        const goalText = document.getElementById('edit-chal-goal-text').value.trim();
-        const activeColorEl = document.querySelector('#edit-chal-colors .color-circle.active');
-        const goalBgColor = activeColorEl ? activeColorEl.getAttribute('data-color') : '#D1FAE5';
-        const goalTextColor = activeColorEl ? activeColorEl.getAttribute('data-text') : '#059669';
-
         if(selectedChallengeId) { 
             isSaving = true; const btn = document.getElementById('btn-edit-chal'); btn.innerText = "Ukládám..."; btn.disabled = true;
-            try { await updateDoc(doc(db, "challenges", selectedChallengeId), { name, targetKm, start, end, allowedActivities, goalText, goalBgColor, goalTextColor }); window.closeEditChallengeModal(); } 
+            try { await updateDoc(doc(db, "challenges", selectedChallengeId), { name, targetKm, start, end, allowedActivities }); window.closeEditChallengeModal(); } 
             catch (e) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Uložit"; btn.disabled = false; }
         }
     };
