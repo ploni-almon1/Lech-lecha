@@ -33,7 +33,7 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
     body { background-color: var(--bg-color); color: var(--text-dark); -webkit-font-smoothing: antialiased; }
     .hidden { display: none !important; }
-    .admin-only { display: none !important; } /* Třída pro skrytí prvků před běžnými uživateli */
+    .admin-only { display: none !important; } 
 
     button, a, .nav-item, .chip, .leaderboard-item { -webkit-tap-highlight-color: transparent; outline: none; }
 
@@ -43,6 +43,7 @@
     .section-title span { font-size: 0.8em; font-weight: 500; color: var(--text-gray); cursor: pointer; }
     
     .card { background-color: var(--white); border-radius: 20px; padding: 20px; box-shadow: 0 6px 24px rgba(0,0,0,0.06); margin: 0 20px 20px 20px; }
+    .card-no-padding { background-color: var(--white); border-radius: 20px; box-shadow: 0 6px 24px rgba(0,0,0,0.06); margin: 0 20px 20px 20px; overflow: hidden; }
 
     /* DASHBOARD MAIN CARD */
     .main-distance-card { background: linear-gradient(135deg, #1E1B4B 0%, #2A245C 100%); color: var(--white); border-radius: 24px; padding: 25px; margin: 0 20px 20px 20px; box-shadow: 0 10px 25px rgba(30,27,75,0.15); position: relative; overflow: hidden; }
@@ -77,6 +78,13 @@
     .lb-name { flex: 1; font-weight: 600; color: var(--text-dark); font-size: 0.95em; }
     .lb-score { font-weight: 700; color: var(--text-dark); font-size: 0.95em; text-align: right; }
 
+    /* BAR CHART */
+    .bar-chart-container { display: flex; align-items: flex-end; gap: 10px; height: 130px; padding-top: 20px; overflow-x: auto; }
+    .bar-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; flex: 1; min-width: 40px; height: 100%; }
+    .bar { width: 100%; max-width: 35px; background: var(--primary-dark); border-radius: 6px 6px 0 0; transition: height 0.3s ease; min-height: 4px; }
+    .bar-label { font-size: 0.7em; color: var(--text-gray); font-weight: 500; white-space: nowrap; }
+    .bar-val { font-size: 0.75em; font-weight: 700; color: var(--text-dark); }
+
     /* PROFIL */
     .profile-header-new { display: flex; flex-direction: column; align-items: center; padding: 10px 20px 20px 20px; }
     .profile-avatar-giant { width: 90px; height: 90px; background-color: var(--primary-dark); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5em; font-weight: 700; overflow: hidden; margin-bottom: 15px; }
@@ -110,8 +118,9 @@
     .modal-content h3 { margin-bottom: 20px; color: var(--primary-dark); }
     
     .activity-chips { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-    .chip { background-color: var(--gray-light); color: var(--text-dark); padding: 10px 20px; border-radius: 20px; font-size: 0.9em; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; user-select: none; }
+    .chip { background-color: var(--gray-light); color: var(--text-dark); padding: 10px 16px; border-radius: 20px; font-size: 0.9em; font-weight: 600; cursor: pointer; border: 2px solid transparent; transition: all 0.2s; user-select: none; }
     .chip.active { background-color: #E0E7FF; color: var(--primary-dark); border-color: var(--primary-dark); }
+    .chip-small { padding: 8px 12px; font-size: 0.85em; }
     
     .km-input-wrapper { margin-bottom: 20px; }
     .km-input { width: 120px; font-size: 2.5em; font-weight: 800; text-align: center; border: none; border-bottom: 2px solid var(--primary-dark); outline: none; color: var(--text-dark); padding: 5px; }
@@ -148,7 +157,7 @@
   <!-- VEŘEJNÁ ČÁST -->
   <div id="public-view">
     <h1 class="page-title" style="justify-content: center; font-size: 2em; margin-top: 40px;">Lech lecha!</h1>
-    <p style="color: var(--text-gray);">Přidej se k naší společné výzvě.</p>
+    <p style="color: var(--text-gray); text-align: center;">Přidej se k naší společné výzvě.</p>
     
     <div class="auth-form">
       <input type="email" id="email-input" class="auth-input" placeholder="Tvůj e-mail">
@@ -195,7 +204,7 @@
         <div id="dash-joined-challenges"></div>
       </div>
 
-      <div class="section-title" style="margin: 20px 20px 10px 20px;">Top 3 (Celkově) <span onclick="switchTab('statistics')">Zobrazit vše</span></div>
+      <div class="section-title" style="margin: 20px 20px 10px 20px;">Top 3 (Celkově)</div>
       <div class="card" style="padding: 10px 20px;">
         <div id="dashboard-leaderboard-list" class="leaderboard-list">
           <div style="text-align: center; color: var(--text-gray); padding: 10px; font-size:0.9em;">Načítám data...</div>
@@ -205,38 +214,14 @@
 
     <!-- ZÁLOŽKA 2: STATISTIKA -->
     <div id="tab-statistics" class="hidden">
-      <div class="page-title">Statistika</div>
-
-      <div id="stats-joined-wrapper" style="display:none;">
-        <div class="section-title" style="margin: 0 20px 10px 20px;">Moje výzvy</div>
-        <div id="stats-joined-challenges"></div>
-      </div>
-
-      <div class="card">
-        <h3 style="font-size: 1.05em; font-weight: 700; color: var(--text-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-gray)"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-            Týdenní přehled
-        </h3>
-        <div id="stats-weekly-list" class="leaderboard-list"></div>
-      </div>
-
-      <div class="card">
-        <h3 style="font-size: 1.05em; font-weight: 700; color: var(--text-dark); margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="var(--text-gray)"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
-            Celkový přehled
-        </h3>
-        <div id="stats-overall-list" class="leaderboard-list"></div>
-      </div>
+      <div class="page-title">Statistika výzev</div>
       
-      <div class="card" style="display:flex; align-items:center; gap:20px;">
-          <div id="chart-graphics-container" style="flex:0 0 120px;"></div>
-          <div id="chart-legend-container" style="flex:1;"></div>
-      </div>
+      <!-- Kontejner pro detailní statistiky každé výzvy -->
+      <div id="stats-challenges-container"></div>
 
-      <div class="section-title" style="margin: 20px 20px 10px 20px;">Další komunitní výzvy</div>
+      <div class="section-title" style="margin: 30px 20px 10px 20px;">Další komunitní výzvy</div>
       <div class="card">
-        <div id="stats-custom-challenges" style="display:flex; flex-direction:column; gap:10px;"></div>
-        <!-- Tlačítko se zobrazí jen uživateli s emailem správce -->
+        <div id="stats-other-challenges" style="display:flex; flex-direction:column; gap:10px;"></div>
         <button class="btn-outline admin-only" style="width: 100%; border: 1px dashed var(--gray-border); background: var(--gray-light); padding: 12px; border-radius: 12px; font-weight: 600; color: var(--text-dark); margin-top: 15px; cursor:pointer;" onclick="openCreateChallengeModal()">+ Vytvořit novou výzvu</button>
       </div>
     </div> 
@@ -355,6 +340,20 @@
       <h3>Nová výzva</h3>
       <div class="date-input-wrapper"><label>Název výzvy:</label><input type="text" id="new-chal-name" class="date-input" placeholder="Např. Křížem krážem"></div>
       <div class="date-input-wrapper"><label>Cílová vzdálenost (km):</label><input type="number" id="new-chal-km" class="date-input" placeholder="1000"></div>
+      
+      <div class="date-input-wrapper">
+        <label style="text-align:center;">Začátek týdne:</label>
+        <div class="activity-chips" style="margin-bottom:0;" id="new-chal-start-day">
+          <div class="chip chip-small active" data-val="1" onclick="selectSingleChip(this, 'new-chal-start-day')">Po</div>
+          <div class="chip chip-small" data-val="2" onclick="selectSingleChip(this, 'new-chal-start-day')">Út</div>
+          <div class="chip chip-small" data-val="3" onclick="selectSingleChip(this, 'new-chal-start-day')">St</div>
+          <div class="chip chip-small" data-val="4" onclick="selectSingleChip(this, 'new-chal-start-day')">Čt</div>
+          <div class="chip chip-small" data-val="5" onclick="selectSingleChip(this, 'new-chal-start-day')">Pá</div>
+          <div class="chip chip-small" data-val="6" onclick="selectSingleChip(this, 'new-chal-start-day')">So</div>
+          <div class="chip chip-small" data-val="0" onclick="selectSingleChip(this, 'new-chal-start-day')">Ne</div>
+        </div>
+      </div>
+
       <div class="date-input-wrapper" style="display:flex; gap:10px;">
         <div style="flex:1;"><label>Od:</label><input type="date" id="new-chal-start" class="date-input"></div>
         <div style="flex:1;"><label>Do:</label><input type="date" id="new-chal-end" class="date-input"></div>
@@ -379,6 +378,20 @@
       <h3>Upravit výzvu</h3>
       <div class="date-input-wrapper"><label>Název výzvy:</label><input type="text" id="edit-chal-name" class="date-input"></div>
       <div class="date-input-wrapper"><label>Cílová vzdálenost (km):</label><input type="number" id="edit-chal-km" class="date-input"></div>
+      
+      <div class="date-input-wrapper">
+        <label style="text-align:center;">Začátek týdne:</label>
+        <div class="activity-chips" style="margin-bottom:0;" id="edit-chal-start-day">
+          <div class="chip chip-small" data-val="1" onclick="selectSingleChip(this, 'edit-chal-start-day')">Po</div>
+          <div class="chip chip-small" data-val="2" onclick="selectSingleChip(this, 'edit-chal-start-day')">Út</div>
+          <div class="chip chip-small" data-val="3" onclick="selectSingleChip(this, 'edit-chal-start-day')">St</div>
+          <div class="chip chip-small" data-val="4" onclick="selectSingleChip(this, 'edit-chal-start-day')">Čt</div>
+          <div class="chip chip-small" data-val="5" onclick="selectSingleChip(this, 'edit-chal-start-day')">Pá</div>
+          <div class="chip chip-small" data-val="6" onclick="selectSingleChip(this, 'edit-chal-start-day')">So</div>
+          <div class="chip chip-small" data-val="0" onclick="selectSingleChip(this, 'edit-chal-start-day')">Ne</div>
+        </div>
+      </div>
+
       <div class="date-input-wrapper" style="display:flex; gap:10px;">
         <div style="flex:1;"><label>Od:</label><input type="date" id="edit-chal-start" class="date-input"></div>
         <div style="flex:1;"><label>Do:</label><input type="date" id="edit-chal-end" class="date-input"></div>
@@ -423,8 +436,6 @@
     // ==========================================
     // NASTAVENÍ ADMINISTRÁTORA
     // ==========================================
-    // Zde doplň svůj registrační e-mail (nebo i více, oddělených čárkou). 
-    // Jen uživatel s tímto e-mailem uvidí tlačítko "Vytvořit výzvu".
     const ADMIN_EMAILS = ["tvuj@email.cz"];
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -441,22 +452,31 @@
     };
 
     const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getFirestore(app); const googleProvider = new GoogleAuthProvider();
-    const publicView = document.getElementById('public-view'); const privateView = document.getElementById('private-view'); const errorMsg = document.getElementById('auth-error');
+    const publicView = document.getElementById('public-view'); const privateView = document.getElementById('private-view'); 
 
-    let currentUser = null; let unsubscribeUser = null; let unsubscribeLeaderboard = null;
-    let unsubscribeActivities = null; let unsubscribeChallengesList = null; let unsubscribeAllActivities = null;
+    let currentUser = null; 
+    let unsubscribeUser = null; 
+    let unsubscribeActivities = null; 
+    let unsubscribeChallengesList = null; 
+    let unsubscribeAllActivities = null;
+    let unsubscribeUsersList = null;
+
     let isSaving = false;
-    
     let globalActivities = [];
     let globalChallenges = [];
+    let globalUsersMap = {};
 
     let currentActivityType = "Chůze"; let editActivityType = ""; let selectedActivityId = null; 
     let selectedActivityOldKm = 0; let selectedActivityDate = null; let cropper = null; 
 
-    function getWeekNumber(d) {
-        d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
-        var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1)); var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
-        let isSunday = new Date().getDay() === 0; if(isSunday) weekNo += 1; return d.getUTCFullYear() + "-" + weekNo;
+    // Pomocná funkce pro výpočet začátku týdne podle nastaveného dne (0=Ne, 1=Po...)
+    function getCustomWeekString(date, startDay) {
+        let d = new Date(date);
+        d.setHours(0,0,0,0);
+        let day = d.getDay();
+        let diff = (day - startDay + 7) % 7;
+        d.setDate(d.getDate() - diff);
+        return d.toLocaleDateString('cs-CZ'); // Vrátí textově datum začátku tohoto konkrétního týdne
     }
 
     const icons = {
@@ -472,13 +492,37 @@
         currentUser = user;
         publicView.classList.add('hidden'); privateView.classList.remove('hidden');
         
-        // Zobrazení tlačítka pro vytváření výzev jen pro povolené administrátory
         const isAdmin = user.email && ADMIN_EMAILS.map(e => e.toLowerCase()).includes(user.email.toLowerCase());
         if(isAdmin) { document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('admin-only')); }
 
         const userRef = doc(db, "users", user.uid);
         if (!(await getDoc(userRef)).exists()) { await setDoc(userRef, { personalKm: 0, name: user.displayName || user.email.split('@')[0], avatarUrl: "" }); }
 
+        // Globální mapa všech uživatelů
+        unsubscribeUsersList = onSnapshot(collection(db, "users"), (snapshot) => {
+            globalUsersMap = {};
+            let rankArr = [];
+            snapshot.forEach(doc => { 
+                let data = doc.data(); 
+                globalUsersMap[doc.id] = data; 
+                rankArr.push({ id: doc.id, ...data });
+            });
+            
+            // Globální Top 3 (zůstává pro dashboard)
+            rankArr.sort((a,b) => (b.personalKm || 0) - (a.personalKm || 0));
+            const dashList = document.getElementById('dashboard-leaderboard-list'); dashList.innerHTML = '';
+            for(let i=0; i<Math.min(3, rankArr.length); i++) {
+                let u = rankArr[i];
+                let avatarHtml = u.avatarUrl ? `<img src="${u.avatarUrl}">` : (u.name || 'N').charAt(0).toUpperCase();
+                dashList.innerHTML += `<div class="leaderboard-item" onclick="openPublicProfile('${u.id}')">
+                    <div class="lb-rank">${i+1}</div><div class="lb-avatar">${avatarHtml}</div>
+                    <div class="lb-name">${u.name || 'Neznámý'}</div><div class="lb-score">${Math.max(0, u.personalKm || 0).toLocaleString('cs-CZ', {maximumFractionDigits: 1})} km</div>
+                </div>`;
+            }
+            renderDynamicContent();
+        });
+
+        // Detail aktuálního uživatele
         unsubscribeUser = onSnapshot(userRef, (docSnap) => {
           if (!docSnap.exists()) return; const data = docSnap.data();
           const myKm = Math.max(0, data.personalKm || 0); 
@@ -490,6 +534,7 @@
           if (data.avatarUrl) { pAvatarNode.innerHTML = `<img src="${data.avatarUrl}">`; } else { pAvatarNode.innerHTML = (data.name || 'N').charAt(0).toUpperCase(); }
         });
 
+        // Aktivity aktuálního uživatele pro sekci Profil
         unsubscribeActivities = onSnapshot(query(collection(db, "activities"), where("uid", "==", user.uid), orderBy("timestamp", "desc")), (snapshot) => {
            const listContainer = document.getElementById('profile-activity-list'); listContainer.innerHTML = '';
            document.getElementById('profile-total-activities').innerText = snapshot.size;
@@ -522,220 +567,259 @@
            }
         });
 
-        // Stažení VŠECH aktivit pro graf, ale samotný výpočet provedeme až společně s výzvami
+        // Stažení VŠECH aktivit pro dynamický výpočet výzev
         unsubscribeAllActivities = onSnapshot(collection(db, "activities"), (snapshot) => {
             globalActivities = [];
             snapshot.forEach(docSnap => { globalActivities.push({ id: docSnap.id, ...docSnap.data() }); });
-            updateGlobalChart();
+            renderDynamicContent();
         });
 
+        // Stažení výzev
         unsubscribeChallengesList = onSnapshot(query(collection(db, "challenges"), orderBy("createdAt", "desc")), async (snap) => {
             globalChallenges = [];
             snap.forEach(docSnap => { globalChallenges.push({ id: docSnap.id, ...docSnap.data() }); });
-            updateGlobalChart();
-
-            const statsList = document.getElementById('stats-custom-challenges'); const dashList = document.getElementById('dash-joined-challenges'); const profList = document.getElementById('profile-my-challenges');
-            const statsJoinedList = document.getElementById('stats-joined-challenges');
-            statsList.innerHTML = ''; dashList.innerHTML = ''; profList.innerHTML = ''; statsJoinedList.innerHTML = '';
-            
-            const allUsersSnap = await getDocs(collection(db, "users")); let userMap = {};
-            allUsersSnap.forEach(uDoc => { const ud = uDoc.data(); userMap[uDoc.id] = { name: ud.name || "Neznámý", avatarUrl: ud.avatarUrl || "" }; });
-
-            globalChallenges.forEach(d => {
-                const cid = d.id;
-                const isMember = d.members && d.members.includes(currentUser.uid); const isCreator = d.creatorId === currentUser.uid;
-                let safeCurrentKm = Math.max(0, d.currentKm || 0); 
-                let pct = d.targetKm > 0 ? (safeCurrentKm / d.targetKm) * 100 : 0; if(pct > 100) pct = 100;
-                const memberCount = d.members ? d.members.length : 0;
-                
-                let memberData = [];
-                if(d.members) {
-                    d.members.forEach(mUid => {
-                        if(userMap[mUid]) {
-                            const mKm = (d.memberKm && d.memberKm[mUid]) ? d.memberKm[mUid] : 0;
-                            memberData.push({ name: userMap[mUid].name, avatar: userMap[mUid].avatarUrl, km: Math.max(0, mKm) });
-                        }
-                    });
-                }
-                memberData.sort((a, b) => a.name.localeCompare(b.name, 'cs'));
-
-                let namesHtml = memberData.map(m => `
-                    <div class="challenge-member-row">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div class="lb-avatar" style="width:24px; height:24px; font-size:0.7em; margin:0;">${m.avatar ? `<img src="${m.avatar}">` : m.name.charAt(0).toUpperCase()}</div>
-                            <span style="font-weight:600;">${m.name}</span>
-                        </div>
-                        <span style="font-weight:700; color:var(--text-dark);">${m.km.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} km</span>
-                    </div>
-                `).join('');
-
-                const statsCard = document.createElement('div');
-                statsCard.style.cssText = "border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; text-align:left; margin-bottom:10px;";
-                statsCard.innerHTML = `<h4 style="color: var(--primary-dark); margin-bottom: 5px; font-size:1.1em;">${d.name}</h4>
-                    <p style="font-size: 0.85em; color: var(--text-gray); margin-bottom: 15px;">Cíl: ${d.targetKm} km | ${new Date(d.start).toLocaleDateString('cs-CZ')} - ${new Date(d.end).toLocaleDateString('cs-CZ')}</p>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div style="font-size:0.85em; color:var(--text-dark); font-weight:600; display:flex; align-items:center; gap:5px; cursor:pointer;" onclick="toggleMembersList('${cid}')">
-                           <svg viewBox="0 0 24 24" width="16" height="16" fill="var(--text-dark)"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                           ${memberCount} ${memberCount === 1 ? 'účastník' : (memberCount > 1 && memberCount < 5 ? 'účastníci' : 'účastníků')}
-                        </div>
-                        ${isMember ? `<div style="background-color: rgba(16, 185, 129, 0.1); color: var(--green-success); padding: 6px 12px; border-radius: 12px; font-size: 0.8em; font-weight: 600;">✔ Jsi zapojen</div>` : `<button style="background:var(--primary-dark); color:var(--white); border:none; padding:8px 15px; border-radius:10px; font-weight:600; font-size:0.85em; cursor:pointer;" onclick="joinChallenge('${cid}')">Připojit se</button>`}
-                    </div>
-                    <div id="members-list-${cid}" class="challenge-members-dropdown hidden">${namesHtml || '<div style="color:var(--text-gray);">Žádní členové</div>'}</div>
-                `;
-                statsList.appendChild(statsCard);
-
-                if(isMember) {
-                    document.getElementById('dash-joined-wrapper').style.display = 'block'; document.getElementById('stats-joined-wrapper').style.display = 'block';
-                    const endDate = new Date(d.end); endDate.setHours(23,59,59); const today = new Date();
-                    const diffTime = endDate - today; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
-                    let daysText = diffDays > 0 ? `zbývá ${diffDays} dní` : "Výzva skončila";
-
-                    let sharedHTML = `
-                      <h3 style="color: var(--text-dark); font-size: 1.2em; font-weight: 800; margin-bottom: 15px;">${d.name}</h3>
-                      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom: 8px;">
-                          <div style="color: var(--text-dark); font-size: 1.05em; font-weight: 700; margin:0;">${safeCurrentKm.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} / ${d.targetKm} <span style="font-size:0.8em; font-weight:600;">km</span></div>
-                          <div style="color: var(--text-gray); font-size: 0.85em; font-weight: 500;">${daysText}</div>
-                      </div>
-                      <div class="chal-progress-bg"><div class="chal-progress-fill" style="width: ${pct}%;"></div></div>
-                    `;
-
-                    const dashCard = document.createElement('div'); dashCard.className = 'card'; dashCard.style.padding = '20px'; dashCard.innerHTML = sharedHTML; dashList.appendChild(dashCard);
-                    const statsCardCopy = document.createElement('div'); statsCardCopy.className = 'card'; statsCardCopy.style.padding = '20px'; statsCardCopy.innerHTML = sharedHTML; statsJoinedList.appendChild(statsCardCopy);
-                }
-
-                if(isCreator) {
-                    const profCard = document.createElement('div'); profCard.className = 'leaderboard-item'; profCard.style.cursor = 'default';
-                    profCard.innerHTML = `
-                        <div class="lb-name" style="font-weight:700;">${d.name} <span style="font-size: 0.8em; color: var(--text-gray); font-weight:500;">(${d.targetKm} km)</span></div>
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <div style="background-color: rgba(16, 185, 129, 0.1); color: var(--green-success); padding: 4px 10px; border-radius: 12px; font-size: 0.75em; font-weight: 600;">✔ Jsi zapojen</div>
-                            <button class="btn-inline-edit" style="display:flex;" onclick="openEditChallengeModal('${cid}')">
-                              <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
-                            </button>
-                        </div>
-                    `;
-                    profList.appendChild(profCard);
-                }
-            });
-            if(statsList.innerHTML === '') statsList.innerHTML = '<div style="text-align:center; color:var(--text-gray); font-size:0.9em; padding:10px;">Žádné další výzvy zatím nejsou.</div>';
-            if(dashList.innerHTML === '') document.getElementById('dash-joined-wrapper').style.display = 'none';
-            if(statsJoinedList.innerHTML === '') document.getElementById('stats-joined-wrapper').style.display = 'none';
-            
-            if(profList.innerHTML === '') { document.getElementById('profile-my-challenges-wrapper').style.display = 'none'; } 
-            else { document.getElementById('profile-my-challenges-wrapper').style.display = 'block'; }
-        });
-
-        unsubscribeLeaderboard = onSnapshot(query(collection(db, "users"), orderBy("personalKm", "desc")), (querySnapshot) => {
-          const dashList = document.getElementById('dashboard-leaderboard-list'); const statsWeeklyList = document.getElementById('stats-weekly-list'); const statsOverallList = document.getElementById('stats-overall-list');
-          dashList.innerHTML = ''; statsWeeklyList.innerHTML = ''; statsOverallList.innerHTML = ''; let rank = 1;
-          querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data(); const userId = docSnap.id; const km = Math.max(0, data.personalKm || 0);
-            const avatarHtml = data.avatarUrl ? `<img src="${data.avatarUrl}">` : (data.name || 'N').charAt(0).toUpperCase();
-            const htmlItem = `<div class="leaderboard-item" onclick="openPublicProfile('${userId}')">
-                <div class="lb-rank">${rank}</div><div class="lb-avatar">${avatarHtml}</div>
-                <div class="lb-name">${data.name || 'Neznámý'}</div><div class="lb-score">${km.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} km</div>
-              </div>`;
-            if(rank <= 3) dashList.innerHTML += htmlItem;
-            statsWeeklyList.innerHTML += htmlItem; statsOverallList.innerHTML += htmlItem; rank++;
-          });
+            renderDynamicContent();
         });
 
       } else {
         currentUser = null; publicView.classList.remove('hidden'); privateView.classList.add('hidden');
         if(unsubscribeUser) unsubscribeUser();
-        if(unsubscribeLeaderboard) unsubscribeLeaderboard(); if(unsubscribeActivities) unsubscribeActivities();
+        if(unsubscribeUsersList) unsubscribeUsersList(); if(unsubscribeActivities) unsubscribeActivities();
         if(unsubscribeChallengesList) unsubscribeChallengesList(); if(unsubscribeAllActivities) unsubscribeAllActivities();
       }
     });
 
-    // CHYTRÝ GRAF: Započítává do grafu POUZE ty aktivity, které reálně spadají do nějaké aktivní výzvy komunity
-    function updateGlobalChart() {
-        let sums = {};
-        let totalLoggedKm = 0;
-        let validActIds = new Set();
+    // -------------------------------------------------------------
+    // DYNAMICKÝ VÝPOČET A VYKRESLENÍ VŠECH VÝZEV
+    // -------------------------------------------------------------
+    function renderDynamicContent() {
+        if(!currentUser || Object.keys(globalUsersMap).length === 0) return;
 
-        globalActivities.forEach(act => {
-            const actDate = act.timestamp ? act.timestamp.toDate() : new Date();
-            let isValid = false;
+        const dashJoinedList = document.getElementById('dash-joined-challenges'); dashJoinedList.innerHTML = '';
+        const statsContainer = document.getElementById('stats-challenges-container'); statsContainer.innerHTML = '';
+        const statsOtherList = document.getElementById('stats-other-challenges'); statsOtherList.innerHTML = '';
+        const profileMyChal = document.getElementById('profile-my-challenges'); profileMyChal.innerHTML = '';
 
-            globalChallenges.forEach(c => {
-                if (!c.start || !c.end) return;
-                const s = new Date(c.start); s.setHours(0,0,0,0);
-                const e = new Date(c.end); e.setHours(23,59,59,999);
-                let allowedLower = (c.allowedActivities || []).map(a => a.trim().toLowerCase());
-                let actTypeLower = (act.type || "").trim().toLowerCase();
+        let joinedCount = 0; let myAuthoredCount = 0;
 
-                // Pokud aktivitu zapsal někdo, kdo je ve výzvě, a aktivita spadá do data a typu výzvy = ZAPOČÍTÁVÁ SE DO GRAFU
-                if (c.members && c.members.includes(act.uid) && actDate >= s && actDate <= e && allowedLower.includes(actTypeLower)) {
-                    isValid = true;
+        // Seřadíme abecedně
+        let sortedChallenges = [...globalChallenges].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
+
+        sortedChallenges.forEach(c => {
+            const isMember = c.members && c.members.includes(currentUser.uid);
+            const isCreator = c.creatorId === currentUser.uid;
+            
+            // 1. Zjistíme, které aktivity se počítají do této výzvy
+            let validActivities = [];
+            let cStart = new Date(c.start); cStart.setHours(0,0,0,0);
+            let cEnd = new Date(c.end); cEnd.setHours(23,59,59,999);
+            let allowedLower = (c.allowedActivities || []).map(a => a.trim().toLowerCase());
+            let startDay = c.startDay !== undefined ? parseInt(c.startDay) : 1; // Default Po
+
+            globalActivities.forEach(act => {
+                if(!act.timestamp) return;
+                let actDate = act.timestamp.toDate();
+                let typeLower = (act.type || "").trim().toLowerCase();
+                // Jen pokud ji zapsal člen a spadá do omezení
+                if (c.members && c.members.includes(act.uid) && actDate >= cStart && actDate <= cEnd && allowedLower.includes(typeLower)) {
+                    validActivities.push(act);
                 }
             });
 
-            if (isValid && act.km > 0) {
-                validActIds.add(act.id);
-                if (!sums[act.type]) sums[act.type] = 0;
-                sums[act.type] += act.km;
-                totalLoggedKm += act.km;
+            // 2. Agregace dat
+            let overallKm = {}; 
+            let weeklyUserKm = {}; 
+            let pieData = {}; 
+            let weeklyTotalKm = {}; 
+            let totalChallengeKm = 0;
+
+            let currentCustomWeek = getCustomWeekString(new Date(), startDay);
+
+            validActivities.forEach(act => {
+                overallKm[act.uid] = (overallKm[act.uid] || 0) + act.km;
+                totalChallengeKm += act.km;
+
+                let actWeek = getCustomWeekString(act.timestamp.toDate(), startDay);
+                weeklyTotalKm[actWeek] = (weeklyTotalKm[actWeek] || 0) + act.km;
+
+                if (actWeek === currentCustomWeek) {
+                    weeklyUserKm[act.uid] = (weeklyUserKm[act.uid] || 0) + act.km;
+                }
+                pieData[act.type] = (pieData[act.type] || 0) + act.km;
+            });
+
+            // Časy / Dny
+            const endDate = new Date(c.end); endDate.setHours(23,59,59); const today = new Date();
+            const diffTime = endDate - today; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+            let daysText = diffDays > 0 ? `zbývá ${diffDays} dní` : "Výzva skončila";
+
+            if (isMember) {
+                joinedCount++;
+                let myCurrentKm = overallKm[currentUser.uid] || 0;
+                let pct = c.targetKm > 0 ? (myCurrentKm / c.targetKm) * 100 : 0; if(pct > 100) pct = 100;
+                let memberCount = c.members ? c.members.length : 0;
+
+                let sharedHeaderHTML = `
+                    <div style="padding: 20px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                         <h3 style="color: var(--text-dark); font-size: 1.3em; font-weight: 800; margin:0;">${c.name}</h3>
+                         <div style="color: var(--text-gray); font-size: 0.85em; font-weight: 500; background:var(--gray-light); padding:5px 10px; border-radius:12px;">${daysText}</div>
+                      </div>
+                      <div style="color: var(--text-dark); font-size: 1.15em; font-weight: 800; margin-bottom: 8px;">
+                          ${myCurrentKm.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} / ${c.targetKm} <span style="font-size:0.7em; font-weight:700; color:var(--text-gray);">km</span>
+                      </div>
+                      <div class="chal-progress-bg" style="margin-bottom:15px;"><div class="chal-progress-fill" style="width: ${pct}%;"></div></div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85em; font-weight:600; color:var(--text-dark);">
+                         <div style="display:flex; align-items:center; gap:6px;">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                            ${memberCount} účastníků
+                         </div>
+                      </div>
+                    </div>
+                `;
+
+                // Přidání do Dashboardu
+                const dashCard = document.createElement('div'); dashCard.className = 'card-no-padding'; dashCard.innerHTML = sharedHeaderHTML; dashJoinedList.appendChild(dashCard);
+
+                // Sestavení detailního bloku do Statistiky
+                const statsCard = document.createElement('div'); statsCard.className = 'card-no-padding';
+                
+                let htmlWeekly = generateLeaderboardHtml(weeklyUserKm);
+                let htmlOverall = generateLeaderboardHtml(overallKm);
+                let htmlBar = generateBarChartHtml(weeklyTotalKm);
+                let pieObj = generatePieChartHtml(pieData);
+
+                statsCard.innerHTML = `
+                    ${sharedHeaderHTML}
+                    <div style="border-top: 1px solid var(--gray-border); padding: 20px;">
+                       <h4 style="font-size: 1.05em; font-weight: 700; margin-bottom: 15px;">Aktuální týdenní přehled</h4>
+                       ${htmlWeekly}
+                    </div>
+                    <div style="border-top: 1px solid var(--gray-border); padding: 20px;">
+                       <h4 style="font-size: 1.05em; font-weight: 700; margin-bottom: 15px;">Celkový přehled</h4>
+                       ${htmlOverall}
+                    </div>
+                    <div style="border-top: 1px solid var(--gray-border); padding: 20px;">
+                       <h4 style="font-size: 1.05em; font-weight: 700; margin-bottom: 5px;">Rozpad podle týdnů</h4>
+                       <div style="font-size: 0.8em; color:var(--text-gray); margin-bottom:15px;">Součet km všech účastníků</div>
+                       ${htmlBar}
+                    </div>
+                    <div style="border-top: 1px solid var(--gray-border); padding: 20px;">
+                       <h4 style="font-size: 1.05em; font-weight: 700; margin-bottom: 15px;">Podíl aktivit</h4>
+                       <div style="display:flex; align-items:center; gap:20px;">
+                          <div style="flex:0 0 120px;">${pieObj.svg}</div>
+                          <div style="flex:1;">${pieObj.legend}</div>
+                       </div>
+                    </div>
+                `;
+                statsContainer.appendChild(statsCard);
+            } else {
+                // Výzvy, kde nejsem člen (Další výzvy)
+                let memberCount = c.members ? c.members.length : 0;
+                const oCard = document.createElement('div');
+                oCard.style.cssText = "border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; text-align:left; margin-bottom:10px;";
+                oCard.innerHTML = `
+                    <h4 style="color: var(--primary-dark); margin-bottom: 5px; font-size:1.1em;">${c.name}</h4>
+                    <p style="font-size: 0.85em; color: var(--text-gray); margin-bottom: 15px;">Cíl: ${c.targetKm} km | ${new Date(c.start).toLocaleDateString('cs-CZ')} - ${new Date(c.end).toLocaleDateString('cs-CZ')}</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="font-size:0.85em; color:var(--text-dark); font-weight:600;">${memberCount} účastníků</div>
+                        <button style="background:var(--primary-dark); color:var(--white); border:none; padding:8px 15px; border-radius:10px; font-weight:600; font-size:0.85em; cursor:pointer;" onclick="joinChallenge('${c.id}')">Připojit se</button>
+                    </div>`;
+                statsOtherList.appendChild(oCard);
+            }
+
+            // Administrátorské úpravy profilu
+            if (isCreator) {
+                myAuthoredCount++;
+                const profCard = document.createElement('div'); profCard.className = 'leaderboard-item'; profCard.style.cursor = 'default';
+                profCard.innerHTML = `
+                    <div class="lb-name" style="font-weight:700;">${c.name} <span style="font-size: 0.8em; color: var(--text-gray); font-weight:500;">(${c.targetKm} km)</span></div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <button class="btn-inline-edit" style="display:flex;" onclick="openEditChallengeModal('${c.id}')">
+                          <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                        </button>
+                    </div>
+                `;
+                profileMyChal.appendChild(profCard);
             }
         });
-        renderActivityChart(sums, totalLoggedKm, validActIds.size);
+
+        // Viditelnost kontejnerů
+        document.getElementById('dash-joined-wrapper').style.display = joinedCount > 0 ? 'block' : 'none';
+        if(joinedCount === 0) statsContainer.innerHTML = '<div style="text-align:center; color:var(--text-gray); font-size:0.9em; padding:20px;">Zatím nejsi v žádné výzvě.</div>';
+        if(statsOtherList.innerHTML === '') statsOtherList.innerHTML = '<div style="text-align:center; color:var(--text-gray); font-size:0.9em; padding:10px;">Žádné další výzvy zatím nejsou.</div>';
+        document.getElementById('profile-my-challenges-wrapper').style.display = myAuthoredCount > 0 ? 'block' : 'none';
     }
 
-    function renderActivityChart(sums, total, totalActs) {
-        const chartBox = document.getElementById('chart-graphics-container'); const legendBox = document.getElementById('chart-legend-container');
-        chartBox.innerHTML = ''; legendBox.innerHTML = '';
-        if(total === 0) {
-            chartBox.innerHTML = `<svg width="120" height="120" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--gray-border)" stroke-width="4"></circle><text x="50%" y="55%" text-anchor="middle" font-size="5" font-weight="600" fill="var(--text-gray)">0%</text></svg>`;
-            legendBox.innerHTML = `<div style="color:var(--text-gray); font-size:0.85em; text-align:center;">Zatím žádná data z výzev</div>`; return;
-        }
+    // Pomocné generátory HTML
+    function generateLeaderboardHtml(kmDataMap) {
+        let arr = Object.keys(kmDataMap).map(uid => ({uid, km: kmDataMap[uid]})).sort((a,b) => b.km - a.km);
+        if (arr.length === 0) return '<div style="color:var(--text-gray); font-size:0.85em; padding: 10px; text-align:center;">Zatím žádné aktivity</div>';
 
-        // Profi paleta odstínů fialové/modré podle obrázku
+        let html = '<div class="leaderboard-list">';
+        arr.forEach((item, index) => {
+            let user = globalUsersMap[item.uid] || {name: 'Neznámý', avatarUrl: ''};
+            let avatarHtml = user.avatarUrl ? `<img src="${user.avatarUrl}">` : user.name.charAt(0).toUpperCase();
+            html += `<div class="leaderboard-item" onclick="openPublicProfile('${item.uid}')">
+                <div class="lb-rank">${index + 1}</div>
+                <div class="lb-avatar">${avatarHtml}</div>
+                <div class="lb-name">${user.name}</div>
+                <div class="lb-score">${item.km.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} km</div>
+            </div>`;
+        });
+        html += '</div>'; return html;
+    }
+
+    function generateBarChartHtml(weeklyTotalKm) {
+        let barKeys = Object.keys(weeklyTotalKm).sort((a, b) => {
+            let p = s => { let parts = s.split('. '); return new Date(parts[2], parts[1]-1, parts[0]); }; return p(a) - p(b);
+        });
+        if(barKeys.length === 0) return '<div style="color:var(--text-gray); font-size:0.85em;">Zatím žádná data</div>';
+        let maxKm = Math.max(...Object.values(weeklyTotalKm), 1);
+        let barsHtml = barKeys.map((k, i) => {
+            let val = weeklyTotalKm[k]; let pct = (val / maxKm) * 100;
+            return `<div class="bar-wrapper">
+                      <span class="bar-val">${val.toLocaleString('cs-CZ', {maximumFractionDigits:1})}</span>
+                      <div class="bar" style="height: ${pct}%;"></div>
+                      <span class="bar-label">${i+1}. týden</span>
+                    </div>`;
+        }).join('');
+        return `<div class="bar-chart-container">${barsHtml}</div>`;
+    }
+
+    function generatePieChartHtml(sums) {
+        let total = Object.values(sums).reduce((a,b) => a+b, 0);
+        if(total === 0) {
+            return { svg: `<svg width="120" height="120" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--gray-border)" stroke-width="4"></circle><text x="50%" y="55%" text-anchor="middle" font-size="5" font-weight="600" fill="var(--text-gray)">0%</text></svg>`, legend: `<div style="color:var(--text-gray); font-size:0.85em; text-align:center;">Žádná data</div>` };
+        }
         const palette = ["#4F46E5", "#818CF8", "#A5B4FC", "#C7D2FE", "#E0E7FF"];
-        
         let sortedTypes = Object.keys(sums).filter(k => sums[k] > 0).sort((a, b) => sums[b] - sums[a]);
-        let gap = sortedTypes.length > 1 ? 1.5 : 0; // Mezera se vytvoří, jen pokud je tam víc než jeden sport
-        
+        let gap = sortedTypes.length > 1 ? 1.5 : 0;
         let offset = 100; let svgContent = ''; let legendHtml = "";
 
         sortedTypes.forEach((key, index) => {
-            let km = sums[key];
-            let color = palette[index % palette.length];
-            let pct = (km / total) * 100;
-            let drawPct = Math.max(0, pct - gap); // vykreslíme kousek kratší čáru pro mezeru
-
+            let km = sums[key]; let color = palette[index % palette.length]; let pct = (km / total) * 100;
+            let drawPct = Math.max(0, pct - gap);
             svgContent += `<circle cx="18" cy="18" r="15.915" fill="transparent" stroke="${color}" stroke-width="4" stroke-dasharray="${drawPct} ${100 - drawPct}" stroke-dashoffset="${offset}"></circle>`;
             offset -= pct;
             legendHtml += `<div class="chart-legend-row"><div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; background-color:${color}; border-radius:50%; display:inline-block;"></span><span>${key.toLowerCase()}</span></div><span>${Math.round(pct)} %</span></div>`;
         });
-        
-        legendHtml += `<div class="chart-legend-row" style="margin-top:10px; padding-top:10px; border-top:1px solid var(--gray-border); color:var(--text-gray);">
-            <div style="display:flex; align-items:center; gap:8px;"><span style="width:10px; height:10px; background-color:var(--text-gray); border-radius:50%; display:inline-block;"></span><span>počet aktivit</span></div>
-            <span style="color:var(--text-dark);">${totalActs}</span>
-          </div>`;
-        
-        chartBox.innerHTML = `<svg width="120" height="120" viewBox="0 0 36 36" style="transform: rotate(-90deg); border-radius:50%;">${svgContent}</svg>`;
-        legendBox.innerHTML = legendHtml;
+        return { svg: `<svg width="120" height="120" viewBox="0 0 36 36" style="transform: rotate(-90deg); border-radius:50%;">${svgContent}</svg>`, legend: legendHtml };
     }
 
+
+    // -------------------------------------------------------------
+    // ZÁPIS AKTIVIT – už neupravuje výzvy v DB přímo (vše je dynamické)
+    // -------------------------------------------------------------
     window.saveActivity = async () => {
       if(isSaving) return;
       let rawInput = document.getElementById('km-input').value.replace(',', '.'); const km = parseFloat(rawInput);
       if(km > 0 && currentUser) {
         isSaving = true; const btn = document.getElementById('btn-save-activity'); btn.innerText = "Ukládám..."; btn.disabled = true;
         try {
-            await addDoc(collection(db, "activities"), { uid: currentUser.uid, km: km, type: currentActivityType, timestamp: new Date(), weekStr: getWeekNumber(new Date()) });
+            await addDoc(collection(db, "activities"), { uid: currentUser.uid, km: km, type: currentActivityType, timestamp: new Date() });
             await updateDoc(doc(db, "users", currentUser.uid), { personalKm: increment(km) });
-            
-            const chalSnap = await getDocs(query(collection(db, "challenges"), where("members", "array-contains", currentUser.uid)));
-            const actDate = new Date(); const updatePromises = [];
-            chalSnap.forEach(dSnap => {
-                const cData = dSnap.data(); const s = new Date(cData.start); const e = new Date(cData.end); e.setHours(23,59,59);
-                let allowedLower = cData.allowedActivities.map(act => act.trim().toLowerCase());
-                if(actDate >= s && actDate <= e && allowedLower.includes(currentActivityType.toLowerCase())) {
-                    updatePromises.push(updateDoc(doc(db, "challenges", dSnap.id), { currentKm: increment(km), [`memberKm.${currentUser.uid}`]: increment(km) }));
-                }
-            });
-            await Promise.all(updatePromises); window.closeModal();
+            window.closeModal();
         } catch (error) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Uložit"; btn.disabled = false; }
       } else { alert("Zadej počet kilometrů."); }
     };
@@ -748,19 +832,9 @@
             isSaving = true; const btn = document.getElementById('btn-edit-activity'); btn.innerText = "Ukládám..."; btn.disabled = true;
             const diffKm = newKm - selectedActivityOldKm; const newDate = newDateVal ? new Date(newDateVal) : new Date();
             try {
-                await updateDoc(doc(db, "activities", selectedActivityId), { km: newKm, type: editActivityType, timestamp: newDate, weekStr: getWeekNumber(newDate) });
+                await updateDoc(doc(db, "activities", selectedActivityId), { km: newKm, type: editActivityType, timestamp: newDate });
                 await updateDoc(doc(db, "users", currentUser.uid), { personalKm: increment(diffKm) });
-                
-                const chalSnap = await getDocs(query(collection(db, "challenges"), where("members", "array-contains", currentUser.uid)));
-                const updatePromises = [];
-                chalSnap.forEach(dSnap => {
-                    const cData = dSnap.data(); const s = new Date(cData.start); const e = new Date(cData.end); e.setHours(23,59,59);
-                    let allowedLower = cData.allowedActivities.map(act => act.trim().toLowerCase());
-                    if(newDate >= s && newDate <= e && allowedLower.includes(editActivityType.toLowerCase())) {
-                        updatePromises.push(updateDoc(doc(db, "challenges", dSnap.id), { currentKm: increment(diffKm), [`memberKm.${currentUser.uid}`]: increment(diffKm) }));
-                    }
-                });
-                await Promise.all(updatePromises); window.closeEditModal();
+                window.closeEditModal();
             } catch (error) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Uložit změny"; btn.disabled = false; }
         } else { alert("Zadej platné hodnoty."); }
     };
@@ -773,18 +847,7 @@
             try {
                 await deleteDoc(doc(db, "activities", selectedActivityId));
                 await updateDoc(doc(db, "users", currentUser.uid), { personalKm: increment(minusKm) });
-                
-                const chalSnap = await getDocs(query(collection(db, "challenges"), where("members", "array-contains", currentUser.uid)));
-                const actDate = selectedActivityDate ? new Date(selectedActivityDate) : new Date();
-                const updatePromises = [];
-                chalSnap.forEach(dSnap => {
-                    const cData = dSnap.data(); const s = new Date(cData.start); const e = new Date(cData.end); e.setHours(23,59,59);
-                    let allowedLower = cData.allowedActivities.map(act => act.trim().toLowerCase());
-                    if(actDate >= s && actDate <= e && allowedLower.includes(editActivityType.toLowerCase())) {
-                        updatePromises.push(updateDoc(doc(db, "challenges", dSnap.id), { currentKm: increment(minusKm), [`memberKm.${currentUser.uid}`]: increment(minusKm) }));
-                    }
-                });
-                await Promise.all(updatePromises); window.closeEditModal();
+                window.closeEditModal();
             } catch (error) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Smazat aktivitu"; btn.disabled = false; }
         }
     };
@@ -830,22 +893,29 @@
     window.selectEditChip = (element) => { document.querySelectorAll('#edit-modal .chip').forEach(c => c.classList.remove('active')); element.classList.add('active'); editActivityType = element.getAttribute('data-type'); };
 
     // VÝZVY
-    window.joinChallenge = async (chalId) => { try { await updateDoc(doc(db, "challenges", chalId), { members: arrayUnion(currentUser.uid), [`memberKm.${currentUser.uid}`]: 0 }); } catch(e) { alert("Chyba."); } };
+    window.joinChallenge = async (chalId) => { try { await updateDoc(doc(db, "challenges", chalId), { members: arrayUnion(currentUser.uid) }); } catch(e) { alert("Chyba."); } };
     window.openCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.add('active'); };
     window.closeCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.remove('active'); };
     window.toggleChallengeChip = (element) => { element.classList.toggle('active'); };
+    
+    window.selectSingleChip = (element, containerId) => { 
+        document.querySelectorAll(`#${containerId} .chip`).forEach(c => c.classList.remove('active')); 
+        element.classList.add('active'); 
+    };
     
     window.saveNewChallenge = async () => {
         if(isSaving) return;
         const name = document.getElementById('new-chal-name').value.trim(); const targetKm = parseFloat(document.getElementById('new-chal-km').value);
         const start = document.getElementById('new-chal-start').value; const end = document.getElementById('new-chal-end').value;
+        const startDay = parseInt(document.querySelector('#new-chal-start-day .chip.active').getAttribute('data-val'));
+
         if(!name || !targetKm || !start || !end) { alert("Vyplň všechna pole."); return; }
         const allowedActivities = []; document.querySelectorAll('#new-chal-chips .chip.active').forEach(c => { allowedActivities.push(c.innerText.trim()); });
         if(allowedActivities.length === 0) { alert("Vyber aspoň jeden sport."); return; }
 
         isSaving = true; const btn = document.getElementById('btn-create-chal'); btn.innerText = "Vytvářím..."; btn.disabled = true;
         try {
-            await addDoc(collection(db, "challenges"), { name, targetKm, start, end, allowedActivities, creatorId: currentUser.uid, members: [currentUser.uid], currentKm: 0, memberKm: { [currentUser.uid]: 0 }, createdAt: new Date() });
+            await addDoc(collection(db, "challenges"), { name, targetKm, start, end, startDay, allowedActivities, creatorId: currentUser.uid, members: [currentUser.uid], createdAt: new Date() });
             window.closeCreateChallengeModal(); document.getElementById('new-chal-name').value = ''; document.getElementById('new-chal-km').value = '';
         } catch (e) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Vytvořit"; btn.disabled = false; }
     };
@@ -857,6 +927,12 @@
             const data = snap.data(); document.getElementById('edit-chal-name').value = data.name; document.getElementById('edit-chal-km').value = data.targetKm;
             document.getElementById('edit-chal-start').value = data.start; document.getElementById('edit-chal-end').value = data.end;
             document.querySelectorAll('#edit-chal-chips .chip').forEach(c => { if(data.allowedActivities && data.allowedActivities.includes(c.getAttribute('data-type'))) { c.classList.add('active'); } else { c.classList.remove('active'); } });
+            
+            let storedDay = data.startDay !== undefined ? data.startDay : 1;
+            document.querySelectorAll('#edit-chal-start-day .chip').forEach(c => {
+                c.classList.remove('active');
+                if(parseInt(c.getAttribute('data-val')) === storedDay) c.classList.add('active');
+            });
             document.getElementById('edit-challenge-modal').classList.add('active');
         }
     };
@@ -865,12 +941,13 @@
         if(isSaving) return;
         const name = document.getElementById('edit-chal-name').value.trim(); const targetKm = parseFloat(document.getElementById('edit-chal-km').value);
         const start = document.getElementById('edit-chal-start').value; const end = document.getElementById('edit-chal-end').value;
+        const startDay = parseInt(document.querySelector('#edit-chal-start-day .chip.active').getAttribute('data-val'));
         const allowedActivities = []; document.querySelectorAll('#edit-chal-chips .chip.active').forEach(c => { allowedActivities.push(c.getAttribute('data-type')); });
         if(!name || !targetKm || !start || !end || allowedActivities.length === 0) return;
 
         if(selectedChallengeId) { 
             isSaving = true; const btn = document.getElementById('btn-edit-chal'); btn.innerText = "Ukládám..."; btn.disabled = true;
-            try { await updateDoc(doc(db, "challenges", selectedChallengeId), { name, targetKm, start, end, allowedActivities }); window.closeEditChallengeModal(); } 
+            try { await updateDoc(doc(db, "challenges", selectedChallengeId), { name, targetKm, start, end, startDay, allowedActivities }); window.closeEditChallengeModal(); } 
             catch (e) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Uložit"; btn.disabled = false; }
         }
     };
@@ -920,7 +997,6 @@
     window.openModal = () => { modal.classList.add('active'); document.getElementById('km-input').value = ''; currentActivityType = "Chůze"; document.querySelectorAll('#activity-modal .chip').forEach(c => c.classList.remove('active')); document.querySelector('#activity-modal .chip[data-type="Chůze"]').classList.add('active'); };
     window.closeModal = () => { modal.classList.remove('active'); };
     window.selectChip = (element) => { document.querySelectorAll('#activity-modal .chip').forEach(c => c.classList.remove('active')); element.classList.add('active'); currentActivityType = element.getAttribute('data-type'); };
-    window.toggleMembersList = (cid) => { document.getElementById(`members-list-${cid}`).classList.toggle('hidden'); };
   </script>
 </body>
 </html>
