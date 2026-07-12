@@ -144,12 +144,13 @@
     .btn-register { background-color: var(--primary-dark); color: var(--white); border: none; padding: 15px; font-size: 1em; font-weight: 600; border-radius: 12px; cursor: pointer; width: 100%; margin-bottom: 15px;}
     .btn-google { background-color: var(--white); color: var(--text-dark); border: 1px solid var(--gray-border); padding: 15px; font-size: 1em; font-weight: 600; border-radius: 12px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px; }
     
-    .challenge-members-dropdown { background-color: var(--bg-color); border-radius: 12px; padding: 10px 15px; margin-top: 10px; font-size: 0.9em; border: 1px solid var(--gray-border); }
-    .challenge-member-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.05); color: var(--text-dark); }
-    .challenge-member-row:last-child { border-bottom: none; }
-
     .chart-legend-row { display:flex; justify-content:space-between; width:100%; font-size:0.85em; font-weight:600; color:var(--text-dark); margin-bottom:8px;}
     .chart-legend-row:last-child { margin-bottom:0; }
+
+    /* DROPDOWN ÚČASTNÍCI */
+    .members-dropdown-content { background-color: var(--bg-color); border-radius: 16px; padding: 10px 15px; margin-top: 15px; transition: all 0.3s ease; }
+    .challenge-member-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .challenge-member-row:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -216,7 +217,6 @@
     <div id="tab-statistics" class="hidden">
       <div class="page-title">Statistika výzev</div>
       
-      <!-- Kontejner pro detailní statistiky každé výzvy -->
       <div id="stats-challenges-container"></div>
 
       <div class="section-title" style="margin: 30px 20px 10px 20px;">Další komunitní výzvy</div>
@@ -469,14 +469,13 @@
     let currentActivityType = "Chůze"; let editActivityType = ""; let selectedActivityId = null; 
     let selectedActivityOldKm = 0; let selectedActivityDate = null; let cropper = null; 
 
-    // Pomocná funkce pro výpočet začátku týdne podle nastaveného dne (0=Ne, 1=Po...)
     function getCustomWeekString(date, startDay) {
         let d = new Date(date);
         d.setHours(0,0,0,0);
         let day = d.getDay();
         let diff = (day - startDay + 7) % 7;
         d.setDate(d.getDate() - diff);
-        return d.toLocaleDateString('cs-CZ'); // Vrátí textově datum začátku tohoto konkrétního týdne
+        return d.toLocaleDateString('cs-CZ'); 
     }
 
     const icons = {
@@ -498,7 +497,6 @@
         const userRef = doc(db, "users", user.uid);
         if (!(await getDoc(userRef)).exists()) { await setDoc(userRef, { personalKm: 0, name: user.displayName || user.email.split('@')[0], avatarUrl: "" }); }
 
-        // Globální mapa všech uživatelů
         unsubscribeUsersList = onSnapshot(collection(db, "users"), (snapshot) => {
             globalUsersMap = {};
             let rankArr = [];
@@ -508,7 +506,6 @@
                 rankArr.push({ id: doc.id, ...data });
             });
             
-            // Globální Top 3 (zůstává pro dashboard)
             rankArr.sort((a,b) => (b.personalKm || 0) - (a.personalKm || 0));
             const dashList = document.getElementById('dashboard-leaderboard-list'); dashList.innerHTML = '';
             for(let i=0; i<Math.min(3, rankArr.length); i++) {
@@ -522,7 +519,6 @@
             renderDynamicContent();
         });
 
-        // Detail aktuálního uživatele
         unsubscribeUser = onSnapshot(userRef, (docSnap) => {
           if (!docSnap.exists()) return; const data = docSnap.data();
           const myKm = Math.max(0, data.personalKm || 0); 
@@ -534,7 +530,6 @@
           if (data.avatarUrl) { pAvatarNode.innerHTML = `<img src="${data.avatarUrl}">`; } else { pAvatarNode.innerHTML = (data.name || 'N').charAt(0).toUpperCase(); }
         });
 
-        // Aktivity aktuálního uživatele pro sekci Profil
         unsubscribeActivities = onSnapshot(query(collection(db, "activities"), where("uid", "==", user.uid), orderBy("timestamp", "desc")), (snapshot) => {
            const listContainer = document.getElementById('profile-activity-list'); listContainer.innerHTML = '';
            document.getElementById('profile-total-activities').innerText = snapshot.size;
@@ -567,14 +562,12 @@
            }
         });
 
-        // Stažení VŠECH aktivit pro dynamický výpočet výzev
         unsubscribeAllActivities = onSnapshot(collection(db, "activities"), (snapshot) => {
             globalActivities = [];
             snapshot.forEach(docSnap => { globalActivities.push({ id: docSnap.id, ...docSnap.data() }); });
             renderDynamicContent();
         });
 
-        // Stažení výzev
         unsubscribeChallengesList = onSnapshot(query(collection(db, "challenges"), orderBy("createdAt", "desc")), async (snap) => {
             globalChallenges = [];
             snap.forEach(docSnap => { globalChallenges.push({ id: docSnap.id, ...docSnap.data() }); });
@@ -602,31 +595,27 @@
 
         let joinedCount = 0; let myAuthoredCount = 0;
 
-        // Seřadíme abecedně
         let sortedChallenges = [...globalChallenges].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
 
         sortedChallenges.forEach(c => {
             const isMember = c.members && c.members.includes(currentUser.uid);
             const isCreator = c.creatorId === currentUser.uid;
             
-            // 1. Zjistíme, které aktivity se počítají do této výzvy
             let validActivities = [];
             let cStart = new Date(c.start); cStart.setHours(0,0,0,0);
             let cEnd = new Date(c.end); cEnd.setHours(23,59,59,999);
             let allowedLower = (c.allowedActivities || []).map(a => a.trim().toLowerCase());
-            let startDay = c.startDay !== undefined ? parseInt(c.startDay) : 1; // Default Po
+            let startDay = c.startDay !== undefined ? parseInt(c.startDay) : 1; 
 
             globalActivities.forEach(act => {
                 if(!act.timestamp) return;
                 let actDate = act.timestamp.toDate();
                 let typeLower = (act.type || "").trim().toLowerCase();
-                // Jen pokud ji zapsal člen a spadá do omezení
                 if (c.members && c.members.includes(act.uid) && actDate >= cStart && actDate <= cEnd && allowedLower.includes(typeLower)) {
                     validActivities.push(act);
                 }
             });
 
-            // 2. Agregace dat
             let overallKm = {}; 
             let weeklyUserKm = {}; 
             let pieData = {}; 
@@ -648,7 +637,6 @@
                 pieData[act.type] = (pieData[act.type] || 0) + act.km;
             });
 
-            // Časy / Dny
             const endDate = new Date(c.end); endDate.setHours(23,59,59); const today = new Date();
             const diffTime = endDate - today; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
             let daysText = diffDays > 0 ? `zbývá ${diffDays} dní` : "Výzva skončila";
@@ -659,7 +647,8 @@
                 let pct = c.targetKm > 0 ? (myCurrentKm / c.targetKm) * 100 : 0; if(pct > 100) pct = 100;
                 let memberCount = c.members ? c.members.length : 0;
 
-                let sharedHeaderHTML = `
+                // SDÍLENÁ HLAVIČKA PRO PŘEHLED (BEZ POČTU ÚČASTNÍKŮ)
+                let dashHeaderHTML = `
                     <div style="padding: 20px;">
                       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                          <h3 style="color: var(--text-dark); font-size: 1.3em; font-weight: 800; margin:0;">${c.name}</h3>
@@ -668,20 +657,49 @@
                       <div style="color: var(--text-dark); font-size: 1.15em; font-weight: 800; margin-bottom: 8px;">
                           ${myCurrentKm.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} / ${c.targetKm} <span style="font-size:0.7em; font-weight:700; color:var(--text-gray);">km</span>
                       </div>
-                      <div class="chal-progress-bg" style="margin-bottom:15px;"><div class="chal-progress-fill" style="width: ${pct}%;"></div></div>
-                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.85em; font-weight:600; color:var(--text-dark);">
-                         <div style="display:flex; align-items:center; gap:6px;">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                            ${memberCount} účastníků
-                         </div>
-                      </div>
+                      <div class="chal-progress-bg"><div class="chal-progress-fill" style="width: ${pct}%;"></div></div>
                     </div>
                 `;
 
-                // Přidání do Dashboardu
-                const dashCard = document.createElement('div'); dashCard.className = 'card-no-padding'; dashCard.innerHTML = sharedHeaderHTML; dashJoinedList.appendChild(dashCard);
+                // GENEROVÁNÍ ROZBALOVACÍHO SEZNAMU (PRO STATISTIKU)
+                let memberDataArray = [];
+                if (c.members) {
+                    c.members.forEach(mUid => {
+                        let mKm = overallKm[mUid] || 0;
+                        let userObj = globalUsersMap[mUid] || {name: 'Neznámý', avatarUrl: ''};
+                        memberDataArray.push({ uid: mUid, name: userObj.name, avatar: userObj.avatarUrl, km: mKm });
+                    });
+                }
+                memberDataArray.sort((a, b) => a.name.localeCompare(b.name, 'cs'));
 
-                // Sestavení detailního bloku do Statistiky
+                let membersHtmlList = `<div class="members-dropdown-content hidden" id="members-dropdown-${c.id}">`;
+                memberDataArray.forEach(m => {
+                    let avatarHtml = m.avatar ? `<img src="${m.avatar}">` : m.name.charAt(0).toUpperCase();
+                    membersHtmlList += `
+                        <div class="challenge-member-row">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="lb-avatar" style="width:30px; height:30px; font-size:0.8em; margin:0;">${avatarHtml}</div>
+                                <span style="font-weight:600; font-size:0.95em; color:var(--text-dark);">${m.name}</span>
+                            </div>
+                            <span style="font-weight:700; color:var(--text-dark);">${m.km.toLocaleString('cs-CZ', {maximumFractionDigits: 1})} km</span>
+                        </div>
+                    `;
+                });
+                membersHtmlList += `</div>`;
+
+                // HLAVIČKA PRO STATISTIKU (OBSAHUJE KLIKATELNÝ POČET ÚČASTNÍKŮ A ROZBALOVACÍ SEZNAM)
+                let statsHeaderHTML = dashHeaderHTML + `
+                    <div style="padding: 0 20px 20px 20px;">
+                        <div style="display:inline-flex; align-items:center; gap:6px; font-size:0.9em; font-weight:600; color:var(--text-dark); cursor:pointer; user-select:none;" onclick="toggleMembersList('${c.id}')">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                            ${memberCount} účastníků
+                        </div>
+                        ${membersHtmlList}
+                    </div>
+                `;
+
+                const dashCard = document.createElement('div'); dashCard.className = 'card-no-padding'; dashCard.innerHTML = dashHeaderHTML; dashJoinedList.appendChild(dashCard);
+
                 const statsCard = document.createElement('div'); statsCard.className = 'card-no-padding';
                 
                 let htmlWeekly = generateLeaderboardHtml(weeklyUserKm);
@@ -690,7 +708,7 @@
                 let pieObj = generatePieChartHtml(pieData);
 
                 statsCard.innerHTML = `
-                    ${sharedHeaderHTML}
+                    ${statsHeaderHTML}
                     <div style="border-top: 1px solid var(--gray-border); padding: 20px;">
                        <h4 style="font-size: 1.05em; font-weight: 700; margin-bottom: 15px;">Aktuální týdenní přehled</h4>
                        ${htmlWeekly}
@@ -714,7 +732,6 @@
                 `;
                 statsContainer.appendChild(statsCard);
             } else {
-                // Výzvy, kde nejsem člen (Další výzvy)
                 let memberCount = c.members ? c.members.length : 0;
                 const oCard = document.createElement('div');
                 oCard.style.cssText = "border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; text-align:left; margin-bottom:10px;";
@@ -728,7 +745,6 @@
                 statsOtherList.appendChild(oCard);
             }
 
-            // Administrátorské úpravy profilu
             if (isCreator) {
                 myAuthoredCount++;
                 const profCard = document.createElement('div'); profCard.className = 'leaderboard-item'; profCard.style.cursor = 'default';
@@ -744,14 +760,12 @@
             }
         });
 
-        // Viditelnost kontejnerů
         document.getElementById('dash-joined-wrapper').style.display = joinedCount > 0 ? 'block' : 'none';
         if(joinedCount === 0) statsContainer.innerHTML = '<div style="text-align:center; color:var(--text-gray); font-size:0.9em; padding:20px;">Zatím nejsi v žádné výzvě.</div>';
         if(statsOtherList.innerHTML === '') statsOtherList.innerHTML = '<div style="text-align:center; color:var(--text-gray); font-size:0.9em; padding:10px;">Žádné další výzvy zatím nejsou.</div>';
         document.getElementById('profile-my-challenges-wrapper').style.display = myAuthoredCount > 0 ? 'block' : 'none';
     }
 
-    // Pomocné generátory HTML
     function generateLeaderboardHtml(kmDataMap) {
         let arr = Object.keys(kmDataMap).map(uid => ({uid, km: kmDataMap[uid]})).sort((a,b) => b.km - a.km);
         if (arr.length === 0) return '<div style="color:var(--text-gray); font-size:0.85em; padding: 10px; text-align:center;">Zatím žádné aktivity</div>';
@@ -807,10 +821,6 @@
         return { svg: `<svg width="120" height="120" viewBox="0 0 36 36" style="transform: rotate(-90deg); border-radius:50%;">${svgContent}</svg>`, legend: legendHtml };
     }
 
-
-    // -------------------------------------------------------------
-    // ZÁPIS AKTIVIT – už neupravuje výzvy v DB přímo (vše je dynamické)
-    // -------------------------------------------------------------
     window.saveActivity = async () => {
       if(isSaving) return;
       let rawInput = document.getElementById('km-input').value.replace(',', '.'); const km = parseFloat(rawInput);
@@ -852,7 +862,6 @@
         }
     };
 
-    // PROFILOVÉ FUNKCE
     window.openProfileEditModal = async () => {
         if(!currentUser) return; const userSnap = await getDoc(doc(db, "users", currentUser.uid)); const deleteBtn = document.getElementById('btn-delete-avatar');
         if(userSnap.exists()){
@@ -892,11 +901,11 @@
     window.closeEditModal = () => { document.getElementById('edit-modal').classList.remove('active'); selectedActivityId = null; };
     window.selectEditChip = (element) => { document.querySelectorAll('#edit-modal .chip').forEach(c => c.classList.remove('active')); element.classList.add('active'); editActivityType = element.getAttribute('data-type'); };
 
-    // VÝZVY
     window.joinChallenge = async (chalId) => { try { await updateDoc(doc(db, "challenges", chalId), { members: arrayUnion(currentUser.uid) }); } catch(e) { alert("Chyba."); } };
     window.openCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.add('active'); };
     window.closeCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.remove('active'); };
     window.toggleChallengeChip = (element) => { element.classList.toggle('active'); };
+    window.toggleMembersList = (cid) => { document.getElementById(`members-dropdown-${cid}`).classList.toggle('hidden'); };
     
     window.selectSingleChip = (element, containerId) => { 
         document.querySelectorAll(`#${containerId} .chip`).forEach(c => c.classList.remove('active')); 
@@ -953,7 +962,6 @@
     };
     window.deleteChallenge = async () => { if(selectedChallengeId && confirm("Smazat výzvu pro všechny?")) { await deleteDoc(doc(db, "challenges", selectedChallengeId)); window.closeEditChallengeModal(); } };
 
-    // NAVIGACE A VEŘEJNÝ PROFIL
     window.switchTab = (tabId) => {
       document.getElementById('tab-dashboard').classList.add('hidden'); document.getElementById('tab-statistics').classList.add('hidden'); 
       document.getElementById('tab-profile').classList.add('hidden'); document.getElementById('tab-map').classList.add('hidden');
@@ -986,7 +994,6 @@
     };
     window.closePublicProfile = () => { document.getElementById('public-profile-modal').classList.remove('active'); };
 
-    // AUTH
     window.resetPassword = (event) => { event.preventDefault(); const email = document.getElementById('email-input').value.trim(); if(!email) return; sendPasswordResetEmail(auth, email); };
     window.registerUser = () => { const email = document.getElementById('email-input').value.trim(); const password = document.getElementById('password-input').value.trim(); createUserWithEmailAndPassword(auth, email, password); };
     window.loginUser = () => { const email = document.getElementById('email-input').value.trim(); const password = document.getElementById('password-input').value.trim(); signInWithEmailAndPassword(auth, email, password); };
