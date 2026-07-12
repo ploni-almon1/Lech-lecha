@@ -107,18 +107,25 @@
     .edit-mode-active .btn-inline-edit { display: flex; } 
 
     /* SPODNÍ NAVIGAČNÍ LIŠTA */
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; justify-content: space-around; padding: 12px 0 20px 0; border-top: 1px solid var(--gray-border); z-index: 100; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background-color: var(--white); display: flex; justify-content: space-around; padding: 12px 0 20px 0; border-top: 1px solid var(--gray-border); z-index: 1000; }
     .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #9CA3AF; font-size: 0.7em; font-weight: 600; cursor: pointer; transition: color 0.2s; gap: 4px; }
     .nav-item svg { width: 24px; height: 24px; fill: #9CA3AF; transition: fill 0.2s; }
     .nav-item.active { color: var(--primary-dark); }
     .nav-item.active svg { fill: var(--primary-dark); }
 
-    /* MAPA */
-    .real-map-container { height: 50vh; border-radius: 20px; overflow: hidden; z-index: 1; border: 1px solid var(--gray-border); background-color: #E5E5F7; }
+    /* MAPA A FAB TLAČÍTKA */
+    #tab-map { position: relative; height: 100vh; width: 100%; margin: 0; padding: 0; overflow: hidden; background: #E5E5F7; }
+    .real-map-container { position: absolute; top: 0; left: 0; right: 0; bottom: 65px; z-index: 1; }
+    .map-fab-container { position: absolute; top: 20px; right: 20px; z-index: 1001; display: flex; flex-direction: column; gap: 12px; }
+    .map-fab { width: 46px; height: 46px; background: var(--white); border: none; border-radius: 50%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-dark); transition: transform 0.2s; }
+    .map-fab:active { transform: scale(0.95); }
+    .map-fab svg { fill: currentColor; }
     .custom-map-marker { display:flex; align-items:center; justify-content:center; }
+    
+    .map-overlay-message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 500; background: rgba(255,255,255,0.9); padding: 15px 25px; border-radius: 20px; font-weight: 600; color: var(--text-dark); text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); pointer-events: none; }
 
     /* MODALY */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 2000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; padding: 20px; }
     .modal-overlay.active { opacity: 1; pointer-events: all; }
     .modal-content { background-color: var(--white); padding: 25px; border-radius: 24px; width: 100%; max-width: 400px; max-height: 90vh; overflow-y: auto; text-align: center; position: relative; }
     .modal-content h3 { margin-bottom: 20px; color: var(--primary-dark); }
@@ -139,6 +146,9 @@
     .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
     .btn-cancel { flex: 1; background-color: var(--gray-light); color: var(--text-dark); border: none; padding: 15px; border-radius: 16px; font-weight: 600; cursor: pointer; }
     .btn-delete { background-color: #FEE2E2; color: #EF4444; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 15px; font-size: 0.9em; width: 100%; }
+
+    .btn-fetch-gpx { background-color: var(--primary-dark); color: var(--white); border: none; padding: 0 15px; border-radius: 12px; font-weight: 600; font-size: 0.85em; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+    .btn-fetch-gpx:active { transform: scale(0.95); }
 
     .cropper-container-wrapper { width: 100%; max-height: 220px; margin-top: 15px; background-color: #eee; overflow: hidden; border-radius: 12px; display: none; }
     .cropper-container-wrapper img { max-width: 100%; display: block; }
@@ -234,18 +244,19 @@
       </div>
     </div> 
 
-    <!-- ZÁLOŽKA 3: MAPA -->
+    <!-- ZÁLOŽKA 3: MAPA (FULLSCREEN) -->
     <div id="tab-map" class="hidden">
-      <div class="page-title">Mapa</div>
-      <div style="margin: 0 20px 15px 20px;">
-          <select id="map-challenge-select" class="date-input" onchange="handleMapSelect()">
-              <option value="">Vyber výzvu...</option>
-          </select>
-      </div>
-      <div style="margin: 0 20px 20px 20px;">
-          <div id="real-map" class="real-map-container">
-             <div style="text-align:center; padding-top:40%; color:var(--text-gray); font-size:0.9em;">Zvolte výzvu s mapou.</div>
-          </div>
+      <div id="real-map" class="real-map-container"></div>
+      <div id="map-empty-state" class="map-overlay-message">Vyberte výzvu s mapou z nabídky vpravo nahoře.</div>
+      
+      <!-- FAB Ovládání -->
+      <div class="map-fab-container">
+          <button class="map-fab" onclick="openMapListModal()">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          </button>
+          <button class="map-fab" onclick="toggleMapLayer()">
+              <svg viewBox="0 0 24 24" width="24" height="24"><path d="M11.99 18.54l-7.37-5.73L3 14.07l9 7 9-7-1.63-1.27-7.38 5.74zM12 16l7.36-5.73L21 9l-9-7-9 7 1.63 1.27L12 16z"/></svg>
+          </button>
       </div>
     </div>
 
@@ -290,6 +301,18 @@
   </div>
 
   <!-- MODALY -->
+  <div id="map-list-modal" class="modal-overlay" onclick="if(event.target===this) closeMapListModal()">
+      <div class="modal-content">
+          <h3>Vyber výzvu s mapou</h3>
+          <div id="map-challenge-list" style="display:flex; flex-direction:column; gap:10px;">
+              <!-- Seznam výzev s mapou generovaný JS -->
+          </div>
+          <div class="modal-buttons-row" style="margin-top: 20px;">
+              <button class="btn-cancel" onclick="closeMapListModal()">Zavřít</button>
+          </div>
+      </div>
+  </div>
+
   <div id="activity-modal" class="modal-overlay" onclick="if(event.target===this) closeModal()">
     <div class="modal-content">
       <h3>Nová aktivita</h3>
@@ -354,9 +377,16 @@
     <div class="modal-content">
       <h3>Nová výzva</h3>
       <div class="date-input-wrapper"><label>Název výzvy:</label><input type="text" id="new-chal-name" class="date-input" placeholder="Např. Křížem krážem"></div>
-      <div class="date-input-wrapper"><label>Cílová vzdálenost (km):</label><input type="number" id="new-chal-km" class="date-input" placeholder="1000"></div>
-      <div class="date-input-wrapper"><label>URL odkaz na GPX mapu (volitelné):</label><input type="text" id="new-chal-map" class="date-input" placeholder="https://..."></div>
       
+      <div class="date-input-wrapper">
+          <label>URL odkaz na GPX mapu (volitelné):</label>
+          <div style="display:flex; gap:10px;">
+              <input type="text" id="new-chal-map" class="date-input" placeholder="https://..." style="flex:1;">
+              <button type="button" class="btn-fetch-gpx" onclick="calculateGpxDistance('new-chal-map', 'new-chal-km')">Vypočítat km</button>
+          </div>
+      </div>
+      <div class="date-input-wrapper"><label>Cílová vzdálenost (km):</label><input type="number" id="new-chal-km" class="date-input" placeholder="1000"></div>
+
       <div class="date-input-wrapper">
         <label style="text-align:center;">Začátek týdne:</label>
         <div class="activity-chips" style="margin-bottom:0;" id="new-chal-start-day">
@@ -393,8 +423,15 @@
     <div class="modal-content">
       <h3>Upravit výzvu</h3>
       <div class="date-input-wrapper"><label>Název výzvy:</label><input type="text" id="edit-chal-name" class="date-input"></div>
+      
+      <div class="date-input-wrapper">
+          <label>URL odkaz na GPX mapu (volitelné):</label>
+          <div style="display:flex; gap:10px;">
+              <input type="text" id="edit-chal-map" class="date-input" placeholder="https://..." style="flex:1;">
+              <button type="button" class="btn-fetch-gpx" onclick="calculateGpxDistance('edit-chal-map', 'edit-chal-km')">Vypočítat km</button>
+          </div>
+      </div>
       <div class="date-input-wrapper"><label>Cílová vzdálenost (km):</label><input type="number" id="edit-chal-km" class="date-input"></div>
-      <div class="date-input-wrapper"><label>URL odkaz na GPX mapu (volitelné):</label><input type="text" id="edit-chal-map" class="date-input" placeholder="https://..."></div>
       
       <div class="date-input-wrapper">
         <label style="text-align:center;">Začátek týdne:</label>
@@ -458,7 +495,7 @@
     // NASTAVENÍ ADMINISTRÁTORA
     // ==========================================
     // ZDE DOPLŇ SVŮJ E-MAIL (nebo více e-mailů oddělených čárkou)
-    const ADMIN_EMAILS = ["ter_ka@centrum.cz"];
+    const ADMIN_EMAILS = ["tvuj@email.cz"];
     // ==========================================
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -488,7 +525,7 @@
     let globalActivities = [];
     let globalChallenges = [];
     let globalUsersMap = {};
-    window.challengeStatsMap = {}; // Pro ukládání celkového počtu km pro mapu
+    window.challengeStatsMap = {}; 
 
     let currentActivityType = "Chůze"; let editActivityType = ""; let selectedActivityId = null; 
     let selectedActivityOldKm = 0; let selectedActivityDate = null; let cropper = null; 
@@ -496,6 +533,10 @@
     // MAPA PROMĚNNÉ
     let leafletMap = null;
     let mapLayers = [];
+    let layerOsm = null;
+    let layerSat = null;
+    let currentMapLayerType = 'osm';
+    let currentSelectedChallengeIdForMap = null;
 
     function getCustomWeekString(date, startDay) {
         let d = new Date(date);
@@ -623,9 +664,8 @@
         const statsOtherList = document.getElementById('stats-other-challenges'); statsOtherList.innerHTML = '';
         const profileMyChal = document.getElementById('profile-my-challenges'); profileMyChal.innerHTML = '';
         
-        const mapSelect = document.getElementById('map-challenge-select');
-        let currentMapSelection = mapSelect.value;
-        mapSelect.innerHTML = '<option value="">Vyber výzvu s mapou...</option>';
+        const mapListModal = document.getElementById('map-challenge-list');
+        mapListModal.innerHTML = '';
 
         let joinedCount = 0; let myAuthoredCount = 0;
         let sortedChallenges = [...globalChallenges].sort((a, b) => a.name.localeCompare(b.name, 'cs'));
@@ -684,12 +724,22 @@
                 let pct = c.targetKm > 0 ? (myCurrentKm / c.targetKm) * 100 : 0; if(pct > 100) pct = 100;
                 let memberCount = c.members ? c.members.length : 0;
 
-                // MAP SELECT POPULATE
+                // MAP SELECT POPULATE (Modal list)
                 if(c.mapUrl) {
-                    let opt = document.createElement('option');
-                    opt.value = c.id; opt.innerText = c.name;
-                    if(c.id === currentMapSelection) opt.selected = true;
-                    mapSelect.appendChild(opt);
+                    let mapBtn = document.createElement('div');
+                    mapBtn.className = 'leaderboard-item';
+                    mapBtn.style.padding = '15px';
+                    mapBtn.style.borderRadius = '12px';
+                    mapBtn.style.background = 'var(--gray-light)';
+                    mapBtn.innerHTML = `
+                        <div class="lb-name" style="font-size:1.05em;">${c.name}</div>
+                        <div style="font-size:0.8em; color:var(--text-gray);">${totalChallengeKm.toLocaleString('cs-CZ', {maximumFractionDigits:1})} / ${c.targetKm} km</div>
+                    `;
+                    mapBtn.onclick = () => { 
+                        closeMapListModal(); 
+                        handleMapSelect(c.id); 
+                    };
+                    mapListModal.appendChild(mapBtn);
                 }
 
                 let dashHeaderHTML = `
@@ -806,7 +856,7 @@
         });
 
         // -----------------------------------------------------------------
-        // OSOBNÍ STATISTIKA (Vykreslí se vždy, obsahuje všechny aktivity)
+        // OSOBNÍ STATISTIKA
         // -----------------------------------------------------------------
         let myActivities = globalActivities.filter(act => act.uid === currentUser.uid);
         let myWeeklyKm = {};
@@ -851,11 +901,72 @@
         if(statsOtherList.innerHTML === '') statsOtherList.innerHTML = '<div style="text-align:center; color:var(--text-gray); font-size:0.9em; padding:10px;">Žádné další výzvy zatím nejsou.</div>';
         document.getElementById('profile-my-challenges-wrapper').style.display = myAuthoredCount > 0 ? 'block' : 'none';
         
+        if(mapListModal.innerHTML === '') {
+            mapListModal.innerHTML = '<div style="text-align:center; color:var(--text-gray); font-size:0.9em; padding:10px;">Žádná výzva zatím neobsahuje mapu.</div>';
+        }
+
         // Refresh mapy pokud je zrovna otevřená záložka
-        if(!document.getElementById('tab-map').classList.contains('hidden')){
-            window.handleMapSelect();
+        if(!document.getElementById('tab-map').classList.contains('hidden') && currentSelectedChallengeIdForMap){
+            window.handleMapSelect(currentSelectedChallengeIdForMap);
         }
     }
+
+    // -------------------------------------------------------------
+    // AUTOMATICKÝ VÝPOČET KM Z GPX
+    // -------------------------------------------------------------
+    window.calculateGpxDistance = async (urlInputId, targetKmId) => {
+        const url = document.getElementById(urlInputId).value.trim();
+        if(!url) { alert("Zadejte nejdříve platný odkaz na GPX mapu."); return; }
+        
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "Počítám...";
+        btn.disabled = true;
+
+        try {
+            const res = await fetch(url);
+            const gpxText = await res.text();
+            const gpxXml = new DOMParser().parseFromString(gpxText, "application/xml");
+            const geojson = toGeoJSON.gpx(gpxXml);
+
+            let latlngsFlat = [];
+            
+            // Pro výpočet potřebujeme Leaflet metodu distanceTo.
+            // GeoJSON coords vrací [lng, lat], Leaflet L.latLng očekává (lat, lng)[cite: 1].
+            if(geojson.features && geojson.features.length > 0) {
+                geojson.features.forEach(feature => {
+                    if (feature.geometry && feature.geometry.type === 'LineString') {
+                        feature.geometry.coordinates.forEach(c => {
+                            latlngsFlat.push(L.latLng(c[1], c[0]));
+                        });
+                    } else if (feature.geometry && feature.geometry.type === 'MultiLineString') {
+                        feature.geometry.coordinates.forEach(line => {
+                            line.forEach(c => {
+                                latlngsFlat.push(L.latLng(c[1], c[0]));
+                            });
+                        });
+                    }
+                });
+            }
+
+            if(latlngsFlat.length > 1) {
+                let totalMeters = 0;
+                for(let i=1; i<latlngsFlat.length; i++) {
+                    totalMeters += latlngsFlat[i-1].distanceTo(latlngsFlat[i]);
+                }
+                let totalKm = totalMeters / 1000;
+                document.getElementById(targetKmId).value = totalKm.toFixed(1);
+            } else {
+                alert("Z této mapy se nepodařilo přečíst body trasy.");
+            }
+        } catch(e) {
+            alert("Chyba při načítání GPX. Ujistěte se, že odkaz je veřejný 'raw' text souboru.");
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    };
+
 
     function generateLeaderboardHtml(kmDataMap) {
         let arr = Object.keys(kmDataMap).map(uid => ({uid, km: kmDataMap[uid]})).sort((a,b) => b.km - a.km);
@@ -917,26 +1028,42 @@
     }
 
     // -------------------------------------------------------------
-    // LOGIKA MAPY LEAFLET + PŘECHODOVÁ ČÁRA GPX
+    // LOGIKA MAPY LEAFLET + VRSTVY + PŘECHODOVÁ ČÁRA GPX
     // -------------------------------------------------------------
-    window.handleMapSelect = async () => {
-        const challengeId = document.getElementById('map-challenge-select').value;
-        const mapContainer = document.getElementById('real-map');
-        
-        if (!challengeId) {
-            mapContainer.innerHTML = '<div style="text-align:center; padding-top:40%; color:var(--text-gray); font-size:0.9em;">Zvolte výzvu s mapou.</div>';
-            if(leafletMap) { leafletMap.remove(); leafletMap = null; }
-            return;
+    window.openMapListModal = () => { document.getElementById('map-list-modal').classList.add('active'); };
+    window.closeMapListModal = () => { document.getElementById('map-list-modal').classList.remove('active'); };
+    
+    window.toggleMapLayer = () => {
+        if (!leafletMap) return;
+        if (currentMapLayerType === 'osm') {
+            leafletMap.removeLayer(layerOsm);
+            layerSat.addTo(leafletMap);
+            currentMapLayerType = 'sat';
+        } else {
+            leafletMap.removeLayer(layerSat);
+            layerOsm.addTo(leafletMap);
+            currentMapLayerType = 'osm';
         }
+    };
 
+    window.handleMapSelect = async (challengeId) => {
+        currentSelectedChallengeIdForMap = challengeId;
         const c = globalChallenges.find(x => x.id === challengeId);
-        if(!c || !c.mapUrl) return;
+        
+        document.getElementById('map-empty-state').style.display = 'none';
 
         if (!leafletMap) {
-            mapContainer.innerHTML = '';
-            leafletMap = L.map('real-map').setView([49.2, 16.6], 13);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(leafletMap);
+            leafletMap = L.map('real-map', {zoomControl: false}).setView([49.2, 16.6], 13);
+            L.control.zoom({ position: 'bottomright' }).addTo(leafletMap);
+
+            layerOsm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
+            layerSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
+            
+            if(currentMapLayerType === 'osm') layerOsm.addTo(leafletMap);
+            else layerSat.addTo(leafletMap);
         }
+
+        if(!c || !c.mapUrl) return;
 
         mapLayers.forEach(l => leafletMap.removeLayer(l));
         mapLayers = [];
@@ -974,9 +1101,9 @@
             let traveled = 0;
             let lastPos = latlngsFlat[0];
 
-            // Tmavě modrá až fialová podle progress baru
-            const cStart = [30, 27, 75];   // #1E1B4B
-            const cEnd = [99, 102, 241];   // #6366F1
+            // Odpovídá gradientu #1E1B4B -> #6366F1
+            const cStart = [30, 27, 75];   
+            const cEnd = [99, 102, 241];   
 
             for (let i = 1; i < latlngsFlat.length; i++) {
                 let p1 = latlngsFlat[i-1];
@@ -1190,7 +1317,7 @@
       if(tabId === 'map') {
           setTimeout(() => {
               if (leafletMap) leafletMap.invalidateSize();
-              window.handleMapSelect();
+              if (currentSelectedChallengeIdForMap) window.handleMapSelect(currentSelectedChallengeIdForMap);
           }, 100);
       }
     };
