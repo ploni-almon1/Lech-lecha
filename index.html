@@ -330,7 +330,7 @@
         <div class="chip active" data-type="Chůze" onclick="selectChip(this)">Chůze</div>
         <div class="chip" data-type="Běh" onclick="selectChip(this)">Běh</div>
         <div class="chip" data-type="Kolo" onclick="selectChip(this)">Kolo</div>
-        <div class="chip" data-type="Plavání" onclick="selectChip(this)">Plavání</div>
+        <div class="chip" data-type="Běh/chůze" onclick="selectChip(this)">Běh/chůze</div>
         <div class="chip" data-type="Běžky" onclick="selectChip(this)">Běžky</div>
       </div>
       <div class="km-input-wrapper">
@@ -363,7 +363,7 @@
         <div class="chip" id="edit-chip-Chůze" data-type="Chůze" onclick="selectEditChip(this)">Chůze</div>
         <div class="chip" id="edit-chip-Běh" data-type="Běh" onclick="selectEditChip(this)">Běh</div>
         <div class="chip" id="edit-chip-Kolo" data-type="Kolo" onclick="selectEditChip(this)">Kolo</div>
-        <div class="chip" id="edit-chip-Plavání" data-type="Plavání" onclick="selectEditChip(this)">Plavání</div>
+        <div class="chip" id="edit-chip-Mix" data-type="Běh/chůze" onclick="selectEditChip(this)">Běh/chůze</div>
         <div class="chip" id="edit-chip-Běžky" data-type="Běžky" onclick="selectEditChip(this)">Běžky</div>
       </div>
       <div class="km-input-wrapper">
@@ -430,7 +430,7 @@
         <label style="text-align:center; margin-top:10px;">Povolené aktivity:</label>
         <div class="activity-chips" style="margin-bottom:0;" id="new-chal-chips">
           <div class="chip active" onclick="toggleChallengeChip(this)">Chůze</div><div class="chip active" onclick="toggleChallengeChip(this)">Běh</div>
-          <div class="chip active" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" onclick="toggleChallengeChip(this)">Plavání</div>
+          <div class="chip active" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" onclick="toggleChallengeChip(this)">Běh/chůze</div>
           <div class="chip" onclick="toggleChallengeChip(this)">Běžky</div>
         </div>
       </div>
@@ -476,7 +476,7 @@
         <label style="text-align:center; margin-top:10px;">Povolené aktivity:</label>
         <div class="activity-chips" style="margin-bottom:0;" id="edit-chal-chips">
           <div class="chip" data-type="Chůze" onclick="toggleChallengeChip(this)">Chůze</div><div class="chip" data-type="Běh" onclick="toggleChallengeChip(this)">Běh</div>
-          <div class="chip" data-type="Kolo" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" data-type="Plavání" onclick="toggleChallengeChip(this)">Plavání</div>
+          <div class="chip" data-type="Kolo" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" data-type="Běh / Chůze" onclick="toggleChallengeChip(this)">Běh/chůze</div>
           <div class="chip" data-type="Běžky" onclick="toggleChallengeChip(this)">Běžky</div>
         </div>
       </div>
@@ -572,8 +572,12 @@
       "Běh": `<img src="assets/run.svg" class="activity-list-icon" alt="Běh">`,
       "Kolo": `<img src="assets/bike.svg" class="activity-list-icon" alt="Kolo">`,
       "Chůze": `<img src="assets/walk.svg" class="activity-list-icon" alt="Chůze">`,
-      "Plavání": `<img src="assets/swim.svg" class="activity-list-icon" alt="Plavání" onerror="this.style.display='none'">`,
+      "Běh/Chůze": `<img src="assets/run.svg" class="activity-list-icon" alt="Běh/chůze">`,
       "Běžky": `<img src="assets/ski.svg" class="activity-list-icon" alt="Běžky">`
+    };
+
+
+
     };
 
     onAuthStateChanged(auth, async (user) => {
