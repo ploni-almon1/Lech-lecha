@@ -82,7 +82,7 @@
     .lb-score { font-weight: 700; color: var(--text-dark); font-size: 0.95em; text-align: right; }
 
     /* BAR CHART */
-    .bar-chart-container { display: flex; align-items: flex-end; gap: 10px; height: 130px; padding-top: 20px; overflow-x: auto; }
+    .bar-chart-container { display: flex; align-items: flex-end; gap: 10px; height: 145px; padding-top: 20px; padding-bottom: 8px; overflow-x: auto; }
     .bar-wrapper { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px; flex: 1; min-width: 40px; height: 100%; }
     .bar { width: 100%; max-width: 35px; background: var(--primary-dark); border-radius: 6px 6px 0 0; transition: height 0.3s ease; min-height: 4px; }
     .bar-label { font-size: 0.7em; color: var(--text-gray); font-weight: 500; white-space: nowrap; }
@@ -102,7 +102,7 @@
     .btn-edit-prof { flex: 1; border: 1px solid var(--gray-border); background: var(--white); padding: 10px 15px; border-radius: 20px; font-size: 0.85em; font-weight: 600; cursor: pointer; color: var(--text-dark); display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
     .btn-logout-prof { flex: 1; border: 1px solid #FECACA; background: var(--white); padding: 10px 15px; border-radius: 20px; font-size: 0.85em; font-weight: 600; cursor: pointer; color: #EF4444; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
 
-    .activity-list-icon { width: 24px; height: 24px; fill: var(--text-gray); margin-right: 15px; flex-shrink: 0; }
+    .activity-list-icon { width: 24px; height: 24px; margin-right: 15px; flex-shrink: 0; object-fit: contain; }
     .btn-inline-edit { display: none; background: transparent; border: none; padding: 5px; width: 28px; height: 28px; cursor: pointer; align-items: center; justify-content: center; margin-left: 10px; flex-shrink: 0; }
     .btn-inline-edit svg { width: 16px; height: 16px; fill: var(--text-gray); }
     .edit-mode-active .btn-inline-edit { display: flex; } 
@@ -344,6 +344,18 @@
     </div>
   </div>
 
+  <!-- Detail výzvy -->
+  <div id="challenge-detail-modal" class="modal-overlay" onclick="if(event.target===this) closeChallengeDetailModal()">
+    <div class="modal-content">
+      <h3 id="chal-detail-name" style="margin-bottom:10px;">Název výzvy</h3>
+      <p style="font-size:0.9em; color:var(--text-gray); margin-bottom:15px;">Povolené aktivity pro tuto výzvu:</p>
+      <div id="chal-detail-acts" style="font-weight:600; color:var(--text-dark); margin-bottom:20px; font-size:1.05em;"></div>
+      <div class="modal-buttons-row">
+          <button class="btn-cancel" onclick="closeChallengeDetailModal()">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
   <div id="edit-modal" class="modal-overlay" onclick="if(event.target===this) closeEditModal()">
     <div class="modal-content">
       <h3>Upravit aktivitu</h3>
@@ -558,11 +570,11 @@
     }
 
     const icons = {
-      "Běh": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M13.49 5.48c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm-3.6 13.9l1-4.4 2.1 2v6h2v-7.5l-2.1-2 .6-3c1.3 1.5 3.3 2.5 5.5 2.5v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1l-1.98 8.15 1.1-1.18c.43-.44.92-.73 1.48-.82l2.3-.35-1.01 4.5 2.11 2z"/></svg>`,
-      "Kolo": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M15.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM5 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5zm5.8-10l2.4-2.4.8.8c1.3 1.3 3 2.1 5.1 2.1V9c-1.5 0-2.7-.6-3.6-1.5l-1.9-1.9c-.5-.4-1-.7-1.6-.7s-1.1.2-1.4.6L8.5 8.4c-.3.4-.5.8-.5 1.4v5h2v-4.1l1.8-1.8zM19 12c-2.8 0-5 2.2-5 5s2.2 5 5 5 5-2.2 5-5-2.2-5-5-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5-1.6 3.5-3.5 3.5z"/></svg>`,
-      "Chůze": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M13.5 5.5c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zM9.8 8.9L7 23h2.1l1.8-8 2.1 2v6h2v-7.5l-2.1-2 .6-3C14.8 12 16.8 13 19 13v-2c-1.9 0-3.5-1-4.3-2.4l-1-1.6c-.4-.6-1-1-1.7-1-.3 0-.5.1-.8.1L6 8.3V13h2V9.6l1.8-.7"/></svg>`,
-      "Plavání": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M20.54 5.4c-1.36 0-2.22.53-2.75.83-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83s-2.22.53-2.75.83c-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83-1.4 0-2.29.56-2.85.88l1.01 1.74c.43-.25.99-.54 1.84-.54s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83 1.35 0 2.21-.52 2.74-.82.47-.27 1.18-.66 2.03-.66v-2c-1.35 0-2.21.52-2.74.82-.47.27-1.18.66-2.03.66-.86 0-1.57-.39-2.03-.66zM20.54 10.4c-1.36 0-2.22.53-2.75.83-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83s-2.22.53-2.75.83c-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83-1.4 0-2.29.56-2.85.88l1.01 1.74c.43-.25.99-.54 1.84-.54s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83 1.35 0 2.21-.52 2.74-.82.47-.27 1.18-.66 2.03-.66v-2c-1.35 0-2.21.52-2.74.82-.47.27-1.18.66-2.03.66-.86 0-1.57-.39-2.03-.66zM20.54 15.4c-1.36 0-2.22.53-2.75.83-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83s-2.22.53-2.75.83c-.46.26-1.17.65-2.02.65-.85 0-1.56-.39-2.02-.65-.53-.3-1.39-.83-2.75-.83-1.4 0-2.29.56-2.85.88l1.01 1.74c.43-.25.99-.54 1.84-.54s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83s2.22-.53 2.75-.83c.46-.26 1.17-.65 2.02-.65s1.56.39 2.02.65c.53.3 1.39.83 2.75.83 1.35 0 2.21-.52 2.74-.82.47-.27 1.18-.66 2.03-.66v-2c-1.35 0-2.21.52-2.74.82-.47.27-1.18.66-2.03.66-.86 0-1.57-.39-2.03-.66zM15 5.54c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2z"/></svg>`,
-      "Běžky": `<svg class="activity-list-icon" viewBox="0 0 24 24"><path d="M20.5 17c-2.43 0-4.63-1.18-6-3l-2.08-2.71c-.72-.94-1.83-1.52-3.03-1.52-.77 0-1.52.22-2.16.63L2.4 13.5l1.6 2.44L8 13.53V20h2v-5l2-2 1.48 1.93c1.61 2.09 4.14 3.4 6.92 3.4L22 18.25l-1.5-2.25zM12 4.5c0 1.38 1.12 2.5 2.5 2.5S17 5.88 17 4.5 15.88 2 14.5 2 12 3.12 12 4.5zM2 20h20v2H2z"/></svg>`
+      "Běh": `<img src="assets/run.svg" class="activity-list-icon" alt="Běh">`,
+      "Kolo": `<img src="assets/bike.svg" class="activity-list-icon" alt="Kolo">`,
+      "Chůze": `<img src="assets/walk.svg" class="activity-list-icon" alt="Chůze">`,
+      "Plavání": `<img src="assets/swim.svg" class="activity-list-icon" alt="Plavání" onerror="this.style.display='none'">`,
+      "Běžky": `<img src="assets/ski.svg" class="activity-list-icon" alt="Běžky">`
     };
 
     onAuthStateChanged(auth, async (user) => {
@@ -850,11 +862,28 @@
                 statsContainer.appendChild(statsCard);
             } else {
                 let memberCount = c.members ? c.members.length : 0;
+                let d1 = new Date(c.start); d1.setHours(0,0,0,0);
+                let d2 = new Date(c.end); d2.setHours(0,0,0,0);
+                let tDays = Math.round(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
+
+                let actsHtml = (c.allowedActivities || []).map(a => {
+                    let iconHtml = icons[a] || icons["Chůze"];
+                    return iconHtml.replace('class="activity-list-icon"', 'style="width: 18px; height: 18px; object-fit: contain;"');
+                }).join(' ');
+
                 const oCard = document.createElement('div');
-                oCard.style.cssText = "border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; text-align:left; margin-bottom:10px;";
+                oCard.style.cssText = "border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; text-align:left; margin-bottom:10px; cursor:pointer;";
+                
+                oCard.onclick = (e) => {
+                    if(e.target.tagName.toLowerCase() === 'button') return;
+                    openChallengeDetailModal(c.id);
+                };
+
                 oCard.innerHTML = `
-                    <h4 style="color: var(--primary-dark); margin-bottom: 5px; font-size:1.1em;">${c.name}</h4>
-                    <p style="font-size: 0.85em; color: var(--text-gray); margin-bottom: 15px;">Cíl: ${c.targetKm} km | ${new Date(c.start).toLocaleDateString('cs-CZ')} - ${new Date(c.end).toLocaleDateString('cs-CZ')}</p>
+                    <h4 style="color: var(--primary-dark); margin-bottom: 8px; font-size:1.1em;">${c.name}</h4>
+                    <div style="font-size: 0.85em; color: var(--text-gray); margin-bottom: 4px;">Cíl: ${c.targetKm} km | ${new Date(c.start).toLocaleDateString('cs-CZ')} - ${new Date(c.end).toLocaleDateString('cs-CZ')}</div>
+                    <div style="font-size: 0.85em; color: var(--text-gray); margin-bottom: 4px;">Délka trvání: ${tDays} dní</div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom: 12px;">${actsHtml}</div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div style="font-size:0.85em; color:var(--text-dark); font-weight:600;">${memberCount} účastníků</div>
                         <button style="background:var(--primary-dark); color:var(--white); border:none; padding:8px 15px; border-radius:10px; font-weight:600; font-size:0.85em; cursor:pointer;" onclick="joinChallenge('${c.id}')">Připojit se</button>
@@ -1022,7 +1051,7 @@
             return `<div class="bar-wrapper">
                       <span class="bar-val">${val.toLocaleString('cs-CZ', {maximumFractionDigits:1})}</span>
                       <div class="bar" style="height: ${pct}%;"></div>
-                      <span class="bar-label">${i+1}. týden</span>
+                      <span class="bar-label">${i+1}. t.</span>
                     </div>`;
         }).join('');
         return `<div class="bar-chart-container">${barsHtml}</div>`;
@@ -1270,7 +1299,6 @@
 
     window.joinChallenge = async (chalId) => { try { await updateDoc(doc(db, "challenges", chalId), { members: arrayUnion(currentUser.uid) }); } catch(e) { alert("Chyba."); } };
     
-    // Nová funkce pro odpojení se z výzvy
     window.leaveChallenge = async (chalId) => { 
         if(confirm("Opravdu se chceš odpojit od této výzvy? Tvé kilometry se do ní přestanou počítat.")) {
             try { 
@@ -1279,6 +1307,18 @@
         }
     };
     
+    // Otevření detailu výzvy
+    window.openChallengeDetailModal = (cid) => {
+        const c = globalChallenges.find(x => x.id === cid);
+        if(!c) return;
+        document.getElementById('chal-detail-name').innerText = c.name;
+        document.getElementById('chal-detail-acts').innerText = (c.allowedActivities || []).join(', ');
+        document.getElementById('challenge-detail-modal').classList.add('active');
+    };
+    window.closeChallengeDetailModal = () => {
+        document.getElementById('challenge-detail-modal').classList.remove('active');
+    };
+
     window.openCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.add('active'); };
     window.closeCreateChallengeModal = () => { document.getElementById('create-challenge-modal').classList.remove('active'); };
     window.toggleChallengeChip = (element) => { element.classList.toggle('active'); };
@@ -1351,7 +1391,7 @@
     window.deleteChallenge = async () => { if(selectedChallengeId && confirm("Smazat výzvu pro všechny?")) { await deleteDoc(doc(db, "challenges", selectedChallengeId)); window.closeEditChallengeModal(); } };
 
     window.switchTab = (tabId) => {
-      window.scrollTo({ top: 0, behavior: 'instant' }); // Oprava posunutí obrazovky
+      window.scrollTo({ top: 0, behavior: 'instant' }); 
       
       document.getElementById('tab-dashboard').classList.add('hidden'); document.getElementById('tab-statistics').classList.add('hidden'); 
       document.getElementById('tab-profile').classList.add('hidden'); document.getElementById('tab-map').classList.add('hidden');
