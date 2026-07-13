@@ -337,6 +337,26 @@
         <input type="number" id="km-input" class="km-input" placeholder="0" step="0.1" min="0">
         <span style="font-size: 1.2em; font-weight: 600;"> km</span>
       </div>
+
+      <!-- NOVÁ SEKCE: Kalkulačka -->
+      <div style="margin: 15px 0 25px 0; border-top: 1px solid var(--gray-border); padding-top: 15px; text-align: left;">
+          <div style="font-size: 0.85em; font-weight: 600; margin-bottom: 10px; cursor:pointer; color: var(--primary-dark); display: flex; align-items: center; justify-content: center; gap: 5px;" onclick="toggleCalculator()">
+              <svg id="calc-chevron" viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="transition: transform 0.2s;"><path d="M7 10l5 5 5-5z"/></svg>
+              Kalkulačka času (volitelné)
+          </div>
+          <div id="calc-fields" class="hidden" style="background: var(--gray-light); padding: 15px; border-radius: 16px;">
+              <div style="display:flex; gap:10px; margin-bottom:10px;">
+                  <input type="number" id="calc-minutes" class="date-input" placeholder="Minuty" oninput="calculateKm()" style="background: var(--white);">
+                  <select id="calc-type" class="date-input" onchange="calculateKm()" style="background: var(--white);">
+                      <option value="4.5">Chůze (4,5 km/h)</option>
+                      <option value="8.5">Běh (8,5 km/h)</option>
+                  </select>
+              </div>
+              <div style="font-size: 0.85em; color: var(--text-gray); text-align: center;">Výpočet: <strong style="color:var(--text-dark); font-size: 1.1em;" id="calc-result">0</strong> km</div>
+          </div>
+      </div>
+      <!-- KONEC KALKULAČKY -->
+
       <div class="modal-buttons-row">
         <button class="btn-cancel" onclick="closeModal()">Zrušit</button>
         <button class="btn-save" id="btn-save-activity" onclick="saveActivity()">Uložit</button>
@@ -476,7 +496,7 @@
         <label style="text-align:center; margin-top:10px;">Povolené aktivity:</label>
         <div class="activity-chips" style="margin-bottom:0;" id="edit-chal-chips">
           <div class="chip" data-type="Chůze" onclick="toggleChallengeChip(this)">Chůze</div><div class="chip" data-type="Běh" onclick="toggleChallengeChip(this)">Běh</div>
-          <div class="chip" data-type="Kolo" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" data-type="Běh / Chůze" onclick="toggleChallengeChip(this)">Běh/chůze</div>
+          <div class="chip" data-type="Kolo" onclick="toggleChallengeChip(this)">Kolo</div><div class="chip" data-type="Běh/chůze" onclick="toggleChallengeChip(this)">Běh/chůze</div>
           <div class="chip" data-type="Běžky" onclick="toggleChallengeChip(this)">Běžky</div>
         </div>
       </div>
@@ -1449,9 +1469,38 @@
     window.logoutUser = () => { signOut(auth); };
 
     const modal = document.getElementById('activity-modal');
-    window.openModal = () => { modal.classList.add('active'); document.getElementById('km-input').value = ''; currentActivityType = "Chůze"; document.querySelectorAll('#activity-modal .chip').forEach(c => c.classList.remove('active')); document.querySelector('#activity-modal .chip[data-type="Chůze"]').classList.add('active'); };
+    window.openModal = () => { 
+        modal.classList.add('active'); 
+        document.getElementById('km-input').value = ''; 
+        document.getElementById('calc-minutes').value = ''; 
+        document.getElementById('calc-result').innerText = '0';
+        currentActivityType = "Chůze"; 
+        document.querySelectorAll('#activity-modal .chip').forEach(c => c.classList.remove('active')); 
+        document.querySelector('#activity-modal .chip[data-type="Chůze"]').classList.add('active'); 
+    };
     window.closeModal = () => { modal.classList.remove('active'); };
     window.selectChip = (element) => { document.querySelectorAll('#activity-modal .chip').forEach(c => c.classList.remove('active')); element.classList.add('active'); currentActivityType = element.getAttribute('data-type'); };
+    
+    // JS PRO KALKULAČKU
+    window.toggleCalculator = () => {
+        const fields = document.getElementById('calc-fields');
+        const chevron = document.getElementById('calc-chevron');
+        if(fields.classList.contains('hidden')) {
+            fields.classList.remove('hidden');
+            chevron.style.transform = 'rotate(-180deg)';
+        } else {
+            fields.classList.add('hidden');
+            chevron.style.transform = 'rotate(0deg)';
+        }
+    };
+
+    window.calculateKm = () => {
+        const mins = parseFloat(document.getElementById('calc-minutes').value) || 0;
+        const speed = parseFloat(document.getElementById('calc-type').value);
+        const km = (mins / 60) * speed;
+        document.getElementById('calc-result').innerText = km.toFixed(1);
+        document.getElementById('km-input').value = km.toFixed(1);
+    };
   </script>
 </body>
 </html>
