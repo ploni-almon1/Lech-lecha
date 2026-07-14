@@ -72,8 +72,7 @@
 
     /* LEADERBOARD */
     .leaderboard-list { display: flex; flex-direction: column; }
-    .leaderboard-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--gray-border); cursor: pointer; }
-    .leaderboard-item:first-child { }
+    .leaderboard-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--gray-border); cursor: pointer; }
     .leaderboard-item:last-child { border-bottom: none; }
     .lb-rank { width: 28px; height: 28px; background-color: var(--gray-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-gray); font-size: 0.85em; margin-right: 12px; flex-shrink: 0; }
     .lb-avatar { width: 36px; height: 36px; background-color: var(--primary-dark); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 15px; font-size: 0.9em; overflow: hidden; flex-shrink: 0; }
@@ -225,7 +224,7 @@
       </div>
 
       <div class="section-title" style="margin: 20px 20px 10px 20px;">Top 3 (Celkově)</div>
-      <div class="card" style="padding: 20px;">
+      <div class="card" style="padding: 8px 20px;">
         <div id="dashboard-leaderboard-list" class="leaderboard-list">
           <div style="text-align: center; color: var(--text-gray); padding: 10px; font-size:0.9em;">Načítám data...</div>
         </div>
@@ -290,7 +289,7 @@
       </div>
 
       <div class="section-title" style="margin: 20px 20px 10px 20px;">Přehled mých aktivit <span onclick="toggleEditMode()" id="btn-toggle-edit-mode" style="display:flex; align-items:center; gap:4px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg> Upravit</span></div>
-      <div class="card" style="padding: 20px;">
+      <div class="card" style="padding: 8px 20px;">
         <div id="profile-activity-list" class="leaderboard-list"></div>
       </div>
       
