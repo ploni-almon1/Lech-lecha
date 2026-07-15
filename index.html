@@ -432,6 +432,12 @@
       </div>
       <div class="date-input-wrapper"><label>Cílová vzdálenost (km):</label><input type="number" id="new-chal-km" class="date-input" placeholder="1000"></div>
 
+      <!-- NOVÉ: URL OBRÁZKU POZADÍ -->
+      <div class="date-input-wrapper">
+          <label>URL obrázku na pozadí karty (volitelné):</label>
+          <input type="text" id="new-chal-bg" class="date-input" placeholder="https://...">
+      </div>
+
       <div class="date-input-wrapper">
         <label style="text-align:center;">Začátek týdne:</label>
         <div class="activity-chips" style="margin-bottom:0;" id="new-chal-start-day">
@@ -478,6 +484,12 @@
       </div>
       <div class="date-input-wrapper"><label>Cílová vzdálenost (km):</label><input type="number" id="edit-chal-km" class="date-input"></div>
       
+      <!-- NOVÉ: URL OBRÁZKU POZADÍ -->
+      <div class="date-input-wrapper">
+          <label>URL obrázku na pozadí karty (volitelné):</label>
+          <input type="text" id="edit-chal-bg" class="date-input" placeholder="https://...">
+      </div>
+
       <div class="date-input-wrapper">
         <label style="text-align:center;">Začátek týdne:</label>
         <div class="activity-chips" style="margin-bottom:0;" id="edit-chal-start-day">
@@ -776,6 +788,9 @@
             const diffTime = endDate - today; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
             let daysText = diffDays > 0 ? `zbývá ${diffDays} dní` : "Výzva skončila";
 
+            // CSS PRO POZADÍ KARET (pokud uživatel vyplnil bgUrl)
+            let bgStyle = c.bgUrl ? `background-image: url('${c.bgUrl}'); background-position: right bottom; background-repeat: no-repeat; background-size: contain;` : '';
+
             if (isMember) {
                 joinedCount++;
                 let myCurrentKm = overallKm[currentUser.uid] || 0;
@@ -787,9 +802,9 @@
                     firstMapChallengeId = c.id;
                 }
 
-                // KARTA AKTIVNÍ VÝZVY V PROFILU S MOŽNOSTÍ ODPOJIT SE
+                // KARTA AKTIVNÍ VÝZVY V PROFILU
                 const profileActiveCard = document.createElement('div');
-                profileActiveCard.style.cssText = "background-color: #FFFFFF; border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;";
+                profileActiveCard.style.cssText = `background-color: #FFFFFF; border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; ${bgStyle}`;
                 profileActiveCard.innerHTML = `
                     <div>
                         <div style="font-weight:700; color:var(--text-dark); margin-bottom:4px; font-size:1.05em;">${c.name}</div>
@@ -819,8 +834,9 @@
                     mapListModal.appendChild(mapBtn);
                 }
 
+                // KARTA NA HLAVNÍM PŘEHLEDU (s aplikovaným pozadím)
                 let dashHeaderHTML = `
-                    <div style="padding: 20px;">
+                    <div style="padding: 20px; ${bgStyle}">
                       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                          <h3 style="color: var(--text-dark); font-size: 1.3em; font-weight: 800; margin:0;">${c.name}</h3>
                          <div style="color: var(--text-gray); font-size: 0.85em; font-weight: 500; background:var(--gray-light); padding:5px 10px; border-radius:12px;">${daysText}</div>
@@ -912,7 +928,7 @@
                 }).join(' ');
 
                 const oCard = document.createElement('div');
-                oCard.style.cssText = "border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; text-align:left; margin-bottom:10px; cursor:pointer;";
+                oCard.style.cssText = `border: 1px solid var(--gray-border); background-color: var(--white); border-radius: 16px; padding: 15px; text-align:left; margin-bottom:10px; cursor:pointer; ${bgStyle}`;
                 
                 oCard.onclick = (e) => {
                     if(e.target.tagName.toLowerCase() === 'button') return;
@@ -934,7 +950,7 @@
             if (isCreator) {
                 myAuthoredCount++;
                 const profCard = document.createElement('div');
-                profCard.style.cssText = "border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;";
+                profCard.style.cssText = `background-color: #FFFFFF; border: 1px solid var(--gray-border); border-radius: 16px; padding: 15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; ${bgStyle}`;
                 profCard.innerHTML = `
                     <div>
                         <div style="font-weight:700; color:var(--text-dark); margin-bottom:4px; font-size:1.05em;">${c.name}</div>
@@ -1379,6 +1395,7 @@
         const name = document.getElementById('new-chal-name').value.trim(); 
         const targetKm = parseFloat(document.getElementById('new-chal-km').value);
         const mapUrl = document.getElementById('new-chal-map').value.trim();
+        const bgUrl = document.getElementById('new-chal-bg').value.trim(); // Nové políčko pro pozadí
         const start = document.getElementById('new-chal-start').value; 
         const end = document.getElementById('new-chal-end').value;
         const startDay = parseInt(document.querySelector('#new-chal-start-day .chip.active').getAttribute('data-val'));
@@ -1389,9 +1406,9 @@
 
         isSaving = true; const btn = document.getElementById('btn-create-chal'); btn.innerText = "Vytvářím..."; btn.disabled = true;
         try {
-            await addDoc(collection(db, "challenges"), { name, targetKm, mapUrl, start, end, startDay, allowedActivities, creatorId: currentUser.uid, members: [currentUser.uid], createdAt: new Date() });
+            await addDoc(collection(db, "challenges"), { name, targetKm, mapUrl, bgUrl, start, end, startDay, allowedActivities, creatorId: currentUser.uid, members: [currentUser.uid], createdAt: new Date() });
             window.closeCreateChallengeModal(); 
-            document.getElementById('new-chal-name').value = ''; document.getElementById('new-chal-km').value = ''; document.getElementById('new-chal-map').value = '';
+            document.getElementById('new-chal-name').value = ''; document.getElementById('new-chal-km').value = ''; document.getElementById('new-chal-map').value = ''; document.getElementById('new-chal-bg').value = '';
         } catch (e) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Vytvořit"; btn.disabled = false; }
     };
 
@@ -1403,6 +1420,7 @@
             document.getElementById('edit-chal-name').value = data.name; 
             document.getElementById('edit-chal-km').value = data.targetKm;
             document.getElementById('edit-chal-map').value = data.mapUrl || '';
+            document.getElementById('edit-chal-bg').value = data.bgUrl || ''; // Zobrazení pozadí v úpravě
             document.getElementById('edit-chal-start').value = data.start; 
             document.getElementById('edit-chal-end').value = data.end;
             document.querySelectorAll('#edit-chal-chips .chip').forEach(c => { if(data.allowedActivities && data.allowedActivities.includes(c.getAttribute('data-type'))) { c.classList.add('active'); } else { c.classList.remove('active'); } });
@@ -1421,6 +1439,7 @@
         const name = document.getElementById('edit-chal-name').value.trim(); 
         const targetKm = parseFloat(document.getElementById('edit-chal-km').value);
         const mapUrl = document.getElementById('edit-chal-map').value.trim();
+        const bgUrl = document.getElementById('edit-chal-bg').value.trim(); // Uložení pozadí v úpravě
         const start = document.getElementById('edit-chal-start').value; 
         const end = document.getElementById('edit-chal-end').value;
         const startDay = parseInt(document.querySelector('#edit-chal-start-day .chip.active').getAttribute('data-val'));
@@ -1429,7 +1448,7 @@
 
         if(selectedChallengeId) { 
             isSaving = true; const btn = document.getElementById('btn-edit-chal'); btn.innerText = "Ukládám..."; btn.disabled = true;
-            try { await updateDoc(doc(db, "challenges", selectedChallengeId), { name, targetKm, mapUrl, start, end, startDay, allowedActivities }); window.closeEditChallengeModal(); } 
+            try { await updateDoc(doc(db, "challenges", selectedChallengeId), { name, targetKm, mapUrl, bgUrl, start, end, startDay, allowedActivities }); window.closeEditChallengeModal(); } 
             catch (e) { alert("Chyba."); } finally { isSaving = false; btn.innerText = "Uložit"; btn.disabled = false; }
         }
     };
